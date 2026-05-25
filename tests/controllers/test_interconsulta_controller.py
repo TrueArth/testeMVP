@@ -1,0 +1,53 @@
+import pytest
+from unittest.mock import AsyncMock, MagicMock
+from fastapi import BackgroundTasks
+
+from src.controllers.interconsulta_controller import InterconsultaController
+from src.providers.interfaces.interconsulta_provider_interface import InterconsultaProviderInterface
+
+@pytest.mark.asyncio
+async def test_solicitar_interconsulta_com_sintoma_critico():
+    # Arrange
+    mock_provider = AsyncMock(spec=InterconsultaProviderInterface)
+    mock_provider.inserir_pedido.return_value = {"id": 1, "gravidade": "VERMELHO"}
+    mock_bg_tasks = MagicMock(spec=BackgroundTasks)
+    
+    payload = {
+        "paciente_cns": "123",
+        "medico_solicitante_crm": "PE-123",
+        "especialidade_id": 1,
+        # O ID 1 é crítico conforme RiskEngineService
+        "sintomas_json": [{"id": 1, "nome": "Cegueira"}]
+    }
+
+    # Act
+    resultado = await InterconsultaController.solicitar_interconsulta(payload, mock_provider, mock_bg_tasks)
+
+    # Assert
+    assert resultado["gravidade"] == "VERMELHO"
+    mock_provider.inserir_pedido.assert_called_once()
+    # Verifica se a gravidade VERMELHO foi injetada no payload antes de salvar
+    args, _ = mock_provider.inserir_pedido.call_args
+    assert args[0]["gravidade"] == "VERMELHO"
+    # Verifica se o worker assíncrono foi disparado na BackgroundTask
+    mock_bg_tasks.add_task.assert_called_once()
+
+@pytest.mark.asyncio
+async def test_solicitar_interconsulta_sem_sintomas_criticos():
+    # Arrange
+    mock_provider = AsyncMock(spec=InterconsultaProviderInterface)
+    mock_provider.inserir_pedido.return_value = {"id": 2, "gravidade": "VERDE"}
+    mock_bg_tasks = MagicMock(spec=BackgroundTasks)
+    
+    payload = {
+        "paciente_cns": "123",
+        "sintomas_json": [{"id": 99, "nome": "Leve desconforto"}]
+    }
+
+    # Act
+    resultado = await InterconsultaController.solicitar_interconsulta(payload, mock_provider, mock_bg_tasks)
+
+    # Assert
+    # Sem ID crítico ou moderado (IDs 1 a 6 mapeados no engine), o retorno padrão é VERDE
+    args, _ = mock_provider.inserir_pedido.call_args
+    assert args[0]["gravidade"] == "VERDE"

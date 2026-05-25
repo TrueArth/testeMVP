@@ -1,0 +1,5 @@
+codigo,identificacao,unidade_funcional,status
+1,LTO-001,UTI Adulto,Ocupado
+2,LTO-002,UTI Adulto,Livre
+3,LTO-003,Enfermaria Ala Sul,Manutenção
+4,LTO-004,Enfermaria Ala Sul,Livre
