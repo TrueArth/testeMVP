@@ -4,8 +4,21 @@ from typing import List, Optional
 from datetime import datetime
 
 from ..auth.auth import auth_handler
-from ..dependencies import get_user_provider, get_interconsulta_provider
+from ..dependencies import get_user_provider, get_interconsulta_provider, get_catalogo_provider
 from ..controllers.user_controller import UserController
+from ..controllers.catalogo_controller import CatalogoController
+
+class SpecialtyCreate(BaseModel):
+    nome: str
+
+class SymptomCreate(BaseModel):
+    nome: str
+    pontuacao: int
+
+class RuleCreate(BaseModel):
+    sintoma_id: int
+    especialidade_id: int
+    pontuacao: int
 
 
 router = APIRouter(prefix="/api", tags=["Admin"])
@@ -136,6 +149,7 @@ class AdminStatistics(BaseModel):
 @router.get("/admin/statistics", response_model=AdminStatistics)
 async def get_admin_statistics(
     interconsulta_provider = Depends(get_interconsulta_provider()),
+    catalogo_provider = Depends(get_catalogo_provider()),
     current_user = Depends(verify_admin_group)
 ):
     """
@@ -146,28 +160,12 @@ async def get_admin_statistics(
     # Busca todas as interconsultas ativas (onde deleted_at IS NULL)
     pedidos = await interconsulta_provider.listar_pedidos_ativos()
     
-    # Dicionário de mapeamento de especialidades
-    especialidades_map = {
-        1: 'Cardiologia',
-        2: 'Clínica Médica',
-        3: 'Dermatologia',
-        4: 'Endocrinologia',
-        5: 'Gastroenterologia',
-        6: 'Geriatria',
-        7: 'Hematologia',
-        8: 'Infectologia',
-        9: 'Medicina de Família e Comunidade',
-        10: 'Medicina do Trabalho',
-        11: 'Nefrologia',
-        12: 'Neurologia',
-        13: 'Oncologia (Alta Complexidade - CACON)',
-        14: 'Pediatria',
-        15: 'Pneumologia',
-        16: 'Psiquiatria',
-        17: 'Reumatologia',
-        18: 'Urologia',
-        19: 'Ginecologia e Obstetrícia',
-    }
+    # Dicionário de mapeamento de especialidades carregado do banco de dados
+    try:
+        especialidades = await catalogo_provider.listar_especialidades()
+        especialidades_map = {esp["id"]: esp["nome"] for esp in especialidades}
+    except Exception:
+        especialidades_map = {}
     
     specialties_counter = Counter()
     doctors_counter = Counter()
@@ -208,4 +206,93 @@ async def get_admin_statistics(
         "top_doctors": top_doctors,
         "inappropriate_doctors": inappropriate_doctors
     }
+
+
+# --- Dynamic Catalog CRUD Management Endpoints ---
+
+@router.get("/admin/especialidades")
+async def get_especialidades(
+    provider = Depends(get_catalogo_provider()),
+    current_user = Depends(verify_admin_group)
+):
+    """Retorna todas as especialidades ativas."""
+    return await CatalogoController.listar_especialidades(provider)
+
+@router.post("/admin/especialidades")
+async def create_especialidade(
+    payload: SpecialtyCreate,
+    provider = Depends(get_catalogo_provider()),
+    current_user = Depends(verify_admin_group)
+):
+    """Cadastra uma nova especialidade."""
+    return await CatalogoController.criar_especialidade(payload.nome, provider)
+
+@router.delete("/admin/especialidades/{especialidade_id}")
+async def delete_especialidade(
+    especialidade_id: int,
+    provider = Depends(get_catalogo_provider()),
+    current_user = Depends(verify_admin_group)
+):
+    """Inativa uma especialidade (Soft Delete)."""
+    return await CatalogoController.inativar_especialidade(especialidade_id, provider)
+
+
+@router.get("/admin/sintomas")
+async def get_sintomas(
+    provider = Depends(get_catalogo_provider()),
+    current_user = Depends(verify_admin_group)
+):
+    """Retorna todos os sintomas ativos."""
+    return await CatalogoController.listar_sintomas(provider)
+
+@router.post("/admin/sintomas")
+async def create_sintoma(
+    payload: SymptomCreate,
+    provider = Depends(get_catalogo_provider()),
+    current_user = Depends(verify_admin_group)
+):
+    """Cadastra um novo sintoma."""
+    return await CatalogoController.criar_sintoma(payload.nome, payload.pontuacao, provider)
+
+@router.delete("/admin/sintomas/{sintoma_id}")
+async def delete_sintoma(
+    sintoma_id: int,
+    provider = Depends(get_catalogo_provider()),
+    current_user = Depends(verify_admin_group)
+):
+    """Inativa um sintoma (Soft Delete)."""
+    return await CatalogoController.inativar_sintoma(sintoma_id, provider)
+
+
+@router.get("/admin/regras")
+async def get_regras(
+    provider = Depends(get_catalogo_provider()),
+    current_user = Depends(verify_admin_group)
+):
+    """Retorna todas as regras de gravidade ativas."""
+    return await CatalogoController.listar_regras_gravidade(provider)
+
+@router.post("/admin/regras")
+async def create_regra(
+    payload: RuleCreate,
+    provider = Depends(get_catalogo_provider()),
+    current_user = Depends(verify_admin_group)
+):
+    """Cria ou atualiza uma regra de pontuação override."""
+    return await CatalogoController.criar_regra_gravidade(
+        payload.sintoma_id, 
+        payload.especialidade_id, 
+        payload.pontuacao, 
+        provider
+    )
+
+@router.delete("/admin/regras/{sintoma_id}/{especialidade_id}")
+async def delete_regra(
+    sintoma_id: int,
+    especialidade_id: int,
+    provider = Depends(get_catalogo_provider()),
+    current_user = Depends(verify_admin_group)
+):
+    """Inativa/remove uma regra de gravidade override."""
+    return await CatalogoController.inativar_regra_gravidade(sintoma_id, especialidade_id, provider)
 

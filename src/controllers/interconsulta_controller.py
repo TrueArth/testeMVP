@@ -56,15 +56,30 @@ class InterconsultaController:
     async def solicitar_interconsulta(
         payload: dict, 
         provider: InterconsultaProviderInterface,
-        background_tasks: BackgroundTasks
+        background_tasks: BackgroundTasks,
+        catalogo_provider: Any = None
     ) -> dict:
         """
         Recebe o payload da API, processa e persiste a interconsulta.
         """
         sintomas = payload.get("sintomas_json", [])
         
-        # 1. Processamento pelo Motor de Regras
-        gravidade = RiskEngineService.calcular_gravidade(sintomas, payload.get("especialidade_id"))
+        # 1. Processamento pelo Motor de Regras (Carrega catálogos dinâmicos se o provider de catálogo for passado)
+        sintomas_db = None
+        regras_db = None
+        if catalogo_provider is not None:
+            try:
+                sintomas_db = await catalogo_provider.listar_sintomas()
+                regras_db = await catalogo_provider.listar_regras_gravidade()
+            except Exception:
+                pass
+                
+        gravidade = RiskEngineService.calcular_gravidade(
+            sintomas, 
+            payload.get("especialidade_id"),
+            sintomas_db=sintomas_db,
+            regras_db=regras_db
+        )
         payload["gravidade"] = gravidade
         payload["status"] = "PENDENTE"
         
@@ -91,6 +106,27 @@ class InterconsultaController:
             for p in fila_inteligente:
                 p["paciente_nome"] = resolver_nome_por_cns(p.get("paciente_cns"))
                 
+            # Se o usuário não for administrador, remove da visão da central 1 dia após a consulta
+            if current_user.get("role") != "admin":
+                from datetime import datetime, timezone, timedelta
+                hoje = datetime.now(timezone.utc)
+                filtrados = []
+                for p in fila_inteligente:
+                    data_cons = p.get("data_consulta")
+                    if p.get("status") == "AGENDADO" and data_cons:
+                        if isinstance(data_cons, str):
+                            try:
+                                data_cons = datetime.fromisoformat(data_cons.replace("Z", "+00:00"))
+                            except ValueError:
+                                data_cons = None
+                        if data_cons:
+                            if data_cons.tzinfo is None:
+                                data_cons = data_cons.replace(tzinfo=timezone.utc)
+                            if hoje > data_cons + timedelta(days=1):
+                                continue # Oculta do regulador
+                    filtrados.append(p)
+                fila_inteligente = filtrados
+
             # Trilha de Auditoria (LGPD)
             username = current_user.get("username") or current_user.get("name") or "Desconhecido"
             import logging
@@ -113,12 +149,35 @@ class InterconsultaController:
         return {"message": "Pedido cancelado com sucesso."}
 
     @staticmethod
-    async def atualizar_status(pedido_id: int, status: str, provider: InterconsultaProviderInterface, marcado_por: str = None) -> dict:
+    async def atualizar_status(pedido_id: int, status: str, provider: InterconsultaProviderInterface, marcado_por: str = None, data_consulta: Any = None) -> dict:
         """
         Atualiza o status de um pedido de interconsulta.
         """
+        if status == "AGENDADO":
+            if not data_consulta:
+                raise HTTPException(status_code=400, detail="Data da consulta é obrigatória para agendamento.")
+            
+            from datetime import datetime, timezone, timedelta
+            val_date = data_consulta
+            if isinstance(val_date, str):
+                try:
+                    val_date = datetime.fromisoformat(val_date.replace("Z", "+00:00"))
+                except ValueError:
+                    raise HTTPException(status_code=400, detail="Formato de data inválido. Use o formato ISO.")
+            
+            if val_date:
+                if val_date.tzinfo is None:
+                    val_date = val_date.replace(tzinfo=timezone.utc)
+                hoje = datetime.now(timezone.utc)
+                # Permite uma margem de tolerância de 1 minuto para evitar falsos positivos
+                if val_date < hoje - timedelta(minutes=1):
+                    raise HTTPException(
+                        status_code=400,
+                        detail="Não é possível agendar uma consulta para uma data/horário no passado."
+                    )
+
         try:
-            sucesso = await provider.atualizar_status_pedido(pedido_id, status, marcado_por=marcado_por)
+            sucesso = await provider.atualizar_status_pedido(pedido_id, status, marcado_por=marcado_por, data_consulta=data_consulta)
             if not sucesso:
                 raise HTTPException(status_code=404, detail="Pedido não encontrado ou inativo.")
             return {"message": "Status atualizado com sucesso.", "pedido_id": pedido_id, "novo_status": status}

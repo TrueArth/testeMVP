@@ -45,7 +45,7 @@ _TestSession = sessionmaker(_engine, class_=AsyncSession, expire_on_commit=False
 # Importa o app DEPOIS de definir as variáveis de ambiente
 # ────────────────────────────────────────────────────────────────
 from src.main import app
-from src.resources.database import Base
+from src.resources.database import Base, get_app_db_session
 from src.models.interconsulta import InterconsultaPedido  # noqa: F401 — registra tabela no metadata
 from src.dependencies import get_interconsulta_provider
 from src.providers.implementations.interconsulta_postgres_provider import InterconsultaPostgresProvider
@@ -59,6 +59,12 @@ async def _get_sqlite_interconsulta_provider() -> InterconsultaPostgresProvider:
     """Fornece um provider com sessão SQLite e dialect explícito para os testes."""
     async with _TestSession() as session:
         yield InterconsultaPostgresProvider(session=session, dialect="sqlite")
+
+
+async def _get_test_db_session():
+    """Fornece uma sessão do banco de teste para todas as dependências."""
+    async with _TestSession() as session:
+        yield session
 
 
 # ────────────────────────────────────────────────────────────────
@@ -96,6 +102,7 @@ async def create_tables():
 async def client():
     """AsyncClient com transporte ASGI — faz chamadas HTTP reais ao app FastAPI."""
     app.dependency_overrides[_get_interconsulta_postgres_provider] = _get_sqlite_interconsulta_provider
+    app.dependency_overrides[get_app_db_session] = _get_test_db_session
     app.dependency_overrides[get_current_user] = _mock_current_user
     async with AsyncClient(
         transport=ASGITransport(app=app),

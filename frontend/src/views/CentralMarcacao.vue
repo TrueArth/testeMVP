@@ -235,6 +235,10 @@
               <p class="text-xs font-semibold text-gray-400 uppercase">Marcado Por (Regulação)</p>
               <p class="text-sm font-semibold text-blue-700 mt-0.5">@{{ pedidoSelecionado.marcado_por }}</p>
             </div>
+            <div v-if="pedidoSelecionado.data_consulta" class="pt-2 border-t border-gray-100">
+              <p class="text-xs font-semibold text-gray-400 uppercase">Data da Consulta</p>
+              <p class="text-sm font-semibold text-green-700 mt-0.5">{{ formatarData(pedidoSelecionado.data_consulta) }}</p>
+            </div>
           </div>
 
           <!-- Gravidade e Status -->
@@ -310,17 +314,34 @@
             </template>
             Re-enviar para o AGHU
           </Button>
-
-          <Button 
-            variant="default" 
-            class="w-full hover:bg-gray-100" 
-            @click="fecharDetalhes"
-          >
-            Fechar
-          </Button>
         </div>
       </div>
     </div>
+
+    <!-- Modal Agendamento -->
+    <Modal :show="mostrarModalAgendamento" @close="mostrarModalAgendamento = false">
+      <template #header>Confirmar Data da Consulta</template>
+      
+      <div class="space-y-4 py-2">
+        <p class="text-sm text-gray-500">
+          Informe a data e horário agendados para a consulta do paciente.
+        </p>
+        <div class="form-group">
+          <label class="form-label">Data e Hora da Consulta</label>
+          <input 
+            type="datetime-local" 
+            v-model="dataConsulta" 
+            class="form-control" 
+            required 
+          />
+        </div>
+      </div>
+
+      <template #footer>
+        <Button variant="default" @click="mostrarModalAgendamento = false">Cancelar</Button>
+        <Button variant="success" :loading="executingAction" @click="salvarAgendamento">Confirmar Agendamento</Button>
+      </template>
+    </Modal>
   </div>
 </template>
 
@@ -338,18 +359,23 @@ import {
 } from '@heroicons/vue/24/outline';
 import Card from '../components/Card.vue';
 import Button from '../components/Button.vue';
-import { useInterconsultaStore, InterconsultaPedido, ESPECIALIDADES_CATALOGO } from '../stores/interconsulta';
+import Modal from '../components/Modal.vue';
+import { useInterconsultaStore, InterconsultaPedido } from '../stores/interconsulta';
 
 const toast = useToast();
 const interconsultaStore = useInterconsultaStore();
 
 function obterNomeEspecialidade(id: number): string {
-  const esp = ESPECIALIDADES_CATALOGO.find((x) => x.id === id);
+  const esp = interconsultaStore.especialidades.find((x) => x.id === id);
   return esp ? esp.nome : `Especialidade ${id}`;
 }
 
 const pedidoSelecionado = ref<InterconsultaPedido | null>(null);
 const executingAction = ref(false);
+
+const mostrarModalAgendamento = ref(false);
+const dataConsulta = ref('');
+const pedidoSendoAgendado = ref<InterconsultaPedido | null>(null);
 
 const activeTab = ref<'pendentes' | 'agendados'>('pendentes');
 
@@ -436,11 +462,24 @@ async function recarregar() {
   }
 }
 
-async function confirmarAgendamento(pedido: InterconsultaPedido) {
+function confirmarAgendamento(pedido: InterconsultaPedido) {
+  pedidoSendoAgendado.value = pedido;
+  dataConsulta.value = '';
+  mostrarModalAgendamento.value = true;
+}
+
+async function salvarAgendamento() {
+  if (!pedidoSendoAgendado.value) return;
+  if (!dataConsulta.value) {
+    toast.error("Por favor, informe a data e hora da consulta.");
+    return;
+  }
   executingAction.value = true;
   try {
-    await interconsultaStore.atualizarStatusPedido(pedido.id, 'AGENDADO');
-    toast.success(`Pedido #${pedido.id} marcado como agendado com sucesso.`);
+    const formattedDate = new Date(dataConsulta.value).toISOString();
+    await interconsultaStore.atualizarStatusPedido(pedidoSendoAgendado.value.id, 'AGENDADO', formattedDate);
+    toast.success(`Pedido #${pedidoSendoAgendado.value.id} marcado como agendado com sucesso.`);
+    mostrarModalAgendamento.value = false;
     fecharDetalhes();
     await recarregar();
   } catch {
@@ -466,5 +505,6 @@ async function reprocessar(pedido: InterconsultaPedido) {
 
 onMounted(() => {
   recarregar();
+  interconsultaStore.listarEspecialidades();
 });
 </script>

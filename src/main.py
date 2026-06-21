@@ -34,14 +34,119 @@ async def lifespan(app: FastAPI):
     from .models.user import User
     from .models.interconsulta import InterconsultaPedido
     from .models.refresh_token import RefreshToken
+    from .models.especialidade import Especialidade
+    from .models.sintoma import Sintoma
+    from .models.regra_gravidade import RegraGravidade
     from sqlalchemy import text
-    import json
-    async with app.state.app_db.engine.begin() as conn:
+    import json    async with app.state.app_db.engine.begin() as conn:
+        # Schema migration check: if sintomas table still has gravidade_padrao column, drop it and rules to update schema
+        try:
+            await conn.execute(text("SELECT gravidade_padrao FROM sintomas LIMIT 1"))
+            print("Old schema detected. Dropping rules and symptoms tables to recreate with pontuacao...")
+            await conn.execute(text("DROP TABLE IF EXISTS regras_gravidade"))
+            await conn.execute(text("DROP TABLE IF EXISTS sintomas"))
+        except Exception:
+            pass
+
         await conn.run_sync(Base.metadata.create_all)
         try:
             await conn.execute(text("ALTER TABLE interconsulta_pedidos ADD COLUMN marcado_por VARCHAR"))
         except Exception:
             pass
+        try:
+            await conn.execute(text("ALTER TABLE interconsulta_pedidos ADD COLUMN data_consulta TIMESTAMP"))
+        except Exception:
+            pass
+            
+        # Seed specialties if table is empty
+        res_esps = await conn.execute(text("SELECT COUNT(*) FROM especialidades WHERE deleted_at IS NULL"))
+        esps_count = res_esps.scalar()
+        if esps_count == 0:
+            mock_esps = [
+                {"id": 1, "nome": "Cardiologia"},
+                {"id": 2, "nome": "Clínica Médica"},
+                {"id": 3, "nome": "Dermatologia"},
+                {"id": 4, "nome": "Endocrinologia"},
+                {"id": 5, "nome": "Gastroenterologia"},
+                {"id": 6, "nome": "Geriatria"},
+                {"id": 7, "nome": "Hematologia"},
+                {"id": 8, "nome": "Infectologia"},
+                {"id": 9, "nome": "Medicina de Família e Comunidade"},
+                {"id": 10, "nome": "Medicina do Trabalho"},
+                {"id": 11, "nome": "Nefrologia"},
+                {"id": 12, "nome": "Neurologia"},
+                {"id": 13, "nome": "Oncologia (Alta Complexidade - CACON)"},
+                {"id": 14, "nome": "Pediatria"},
+                {"id": 15, "nome": "Pneumologia"},
+                {"id": 16, "nome": "Psiquiatria"},
+                {"id": 17, "nome": "Reumatologia"},
+                {"id": 18, "nome": "Urologia"},
+                {"id": 19, "nome": "Ginecologia e Obstetrícia"},
+            ]
+            stmt_esp = text(
+                "INSERT INTO especialidades (id, nome, criado_em, atualizado_em) "
+                "VALUES (:id, :nome, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"
+            )
+            for esp in mock_esps:
+                await conn.execute(stmt_esp, esp)
+
+        # Seed symptoms if table is empty
+        res_sints = await conn.execute(text("SELECT COUNT(*) FROM sintomas WHERE deleted_at IS NULL"))
+        sints_count = res_sints.scalar()
+        if sints_count == 0:
+            mock_sints = [
+                {"id": 1, "nome": "Cegueira / Perda súbita de visão", "pontuacao": 10},
+                {"id": 2, "nome": "Infarto / Dor torácica súbita", "pontuacao": 10},
+                {"id": 3, "nome": "AVC / Perda de força unilateral", "pontuacao": 10},
+                {"id": 4, "nome": "Dor torácica intensa", "pontuacao": 5},
+                {"id": 5, "nome": "Febre alta", "pontuacao": 5},
+                {"id": 6, "nome": "Fratura", "pontuacao": 5},
+                {"id": 7, "nome": "Ideação suicida ativa", "pontuacao": 5},
+                {"id": 8, "nome": "Hematúria macroscópica", "pontuacao": 5},
+                {"id": 9, "nome": "Nódulo tireoidiano palpável", "pontuacao": 1},
+                {"id": 10, "nome": "Dispneia aguda", "pontuacao": 5},
+                {"id": 11, "nome": "Dor abdominal intensa", "pontuacao": 5},
+                {"id": 12, "nome": "Convulsão", "pontuacao": 5},
+                {"id": 13, "nome": "Erupção cutânea com febre", "pontuacao": 1},
+                {"id": 14, "nome": "Confusão mental aguda", "pontuacao": 1},
+            ]
+            stmt_sint = text(
+                "INSERT INTO sintomas (id, nome, pontuacao, criado_em, atualizado_em) "
+                "VALUES (:id, :nome, :pontuacao, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"
+            )
+            for sint in mock_sints:
+                await conn.execute(stmt_sint, sint)
+
+        # Seed rules (overrides) if table is empty
+        res_rules = await conn.execute(text("SELECT COUNT(*) FROM regras_gravidade WHERE deleted_at IS NULL"))
+        rules_count = res_rules.scalar()
+        if rules_count == 0:
+            mock_rules = [
+                {"sintoma_id": 4, "especialidade_id": 1, "pontuacao": 10},
+                {"sintoma_id": 10, "especialidade_id": 1, "pontuacao": 10},
+                {"sintoma_id": 13, "especialidade_id": 3, "pontuacao": 5},
+                {"sintoma_id": 9, "especialidade_id": 4, "pontuacao": 5},
+                {"sintoma_id": 11, "especialidade_id": 5, "pontuacao": 10},
+                {"sintoma_id": 14, "especialidade_id": 6, "pontuacao": 5},
+                {"sintoma_id": 5, "especialidade_id": 8, "pontuacao": 5},
+                {"sintoma_id": 13, "especialidade_id": 8, "pontuacao": 5},
+                {"sintoma_id": 8, "especialidade_id": 11, "pontuacao": 10},
+                {"sintoma_id": 12, "especialidade_id": 12, "pontuacao": 10},
+                {"sintoma_id": 14, "especialidade_id": 12, "pontuacao": 5},
+                {"sintoma_id": 9, "especialidade_id": 13, "pontuacao": 5},
+                {"sintoma_id": 5, "especialidade_id": 14, "pontuacao": 5},
+                {"sintoma_id": 12, "especialidade_id": 14, "pontuacao": 10},
+                {"sintoma_id": 10, "especialidade_id": 15, "pontuacao": 10},
+                {"sintoma_id": 7, "especialidade_id": 16, "pontuacao": 10},
+                {"sintoma_id": 6, "especialidade_id": 17, "pontuacao": 5},
+                {"sintoma_id": 8, "especialidade_id": 18, "pontuacao": 10},
+            ]
+            stmt_rule = text(
+                "INSERT INTO regras_gravidade (sintoma_id, especialidade_id, pontuacao, criado_em, atualizado_em) "
+                "VALUES (:sintoma_id, :especialidade_id, :pontuacao, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"
+            )
+            for rule in mock_rules:
+                await conn.execute(stmt_rule, rule)
             
         # Seed users if users table is empty
         res_users = await conn.execute(text("SELECT COUNT(*) FROM users WHERE deleted_at IS NULL"))

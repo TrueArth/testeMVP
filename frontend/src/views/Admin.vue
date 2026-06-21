@@ -5,11 +5,23 @@
       <div>
         <h1 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
           <UserGroupIcon v-if="abaAtiva === 'usuarios'" class="h-8 w-8 text-blue-600" />
+          <QueueListIcon v-else-if="abaAtiva === 'especialidades'" class="h-8 w-8 text-blue-600" />
+          <ClipboardDocumentListIcon v-else-if="abaAtiva === 'sintomas'" class="h-8 w-8 text-blue-600" />
           <ChartBarIcon v-else class="h-8 w-8 text-blue-600" />
-          {{ abaAtiva === 'usuarios' ? 'Gestão de Usuários' : 'Estatísticas de Regulação' }}
+          {{ 
+            abaAtiva === 'usuarios' ? 'Gestão de Usuários' : 
+            abaAtiva === 'especialidades' ? 'Gerenciar Especialidades' :
+            abaAtiva === 'sintomas' ? 'Gerenciar Sintomas & Regras' :
+            'Estatísticas de Regulação' 
+          }}
         </h1>
         <p class="text-sm text-gray-500 mt-1">
-          {{ abaAtiva === 'usuarios' ? 'Crie novos usuários e gerencie perfis de acesso localmente.' : 'Acompanhe indicadores clínicos e auditoria de solicitações.' }}
+          {{ 
+            abaAtiva === 'usuarios' ? 'Crie novos usuários e gerencie perfis de acesso localmente.' : 
+            abaAtiva === 'especialidades' ? 'Cadastre e remova especialidades médicas no catálogo.' :
+            abaAtiva === 'sintomas' ? 'Crie sintomas e defina regras de gravidade específicas por especialidade.' :
+            'Acompanhe indicadores clínicos e auditoria de solicitações.' 
+          }}
         </p>
       </div>
       <div>
@@ -19,20 +31,40 @@
           </template>
           Novo Usuário
         </Button>
-        <Button v-else variant="default" @click="carregarEstatisticas" :loading="loadingStats">
+        <Button v-if="abaAtiva === 'especialidades'" variant="primary" @click="abrirModalCriarEsp">
+          Nova Especialidade
+        </Button>
+        <Button v-if="abaAtiva === 'sintomas'" variant="primary" @click="abrirModalCriarSint">
+          Novo Sintoma
+        </Button>
+        <Button v-if="abaAtiva === 'estatisticas'" variant="default" @click="carregarEstatisticas" :loading="loadingStats">
           Atualizar Dados
         </Button>
       </div>
     </div>
 
     <!-- Tab Selector -->
-    <div class="flex gap-6 border-b border-gray-200">
+    <div class="flex gap-6 border-b border-gray-200 font-sans">
       <button 
         @click="alterarAba('usuarios')" 
         :class="abaAtiva === 'usuarios' ? 'border-b-2 border-blue-600 text-blue-600 font-bold' : 'text-gray-500 hover:text-gray-700'"
         class="pb-3 px-2 transition text-sm font-semibold focus:outline-none"
       >
         Gerenciar Usuários
+      </button>
+      <button 
+        @click="alterarAba('especialidades')" 
+        :class="abaAtiva === 'especialidades' ? 'border-b-2 border-blue-600 text-blue-600 font-bold' : 'text-gray-500 hover:text-gray-700'"
+        class="pb-3 px-2 transition text-sm font-semibold focus:outline-none"
+      >
+        Gerenciar Especialidades
+      </button>
+      <button 
+        @click="alterarAba('sintomas')" 
+        :class="abaAtiva === 'sintomas' ? 'border-b-2 border-blue-600 text-blue-600 font-bold' : 'text-gray-500 hover:text-gray-700'"
+        class="pb-3 px-2 transition text-sm font-semibold focus:outline-none"
+      >
+        Gerenciar Sintomas & Regras
       </button>
       <button 
         @click="alterarAba('estatisticas')" 
@@ -108,6 +140,247 @@
         </div>
       </Card>
     </div>
+
+    <!-- Tab 3: Gerenciar Especialidades -->
+    <div v-show="abaAtiva === 'especialidades'" class="space-y-6">
+      <Card>
+        <template #header>
+          <div class="pb-2">
+            <h2 class="text-lg font-semibold text-gray-700">Especialidades Cadastradas</h2>
+            <p class="text-xs text-gray-400">Lista de especialidades médicas disponíveis no catálogo de interconsultas.</p>
+          </div>
+        </template>
+        
+        <div v-if="loadingCatalog" class="text-center py-8">
+          <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent"></div>
+          <p class="text-sm text-gray-500 mt-2">Carregando especialidades...</p>
+        </div>
+        
+        <div v-else-if="especialidades.length === 0" class="text-center py-12">
+          <p class="text-sm text-gray-500">Nenhuma especialidade cadastrada.</p>
+        </div>
+        
+        <div v-else class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200 mt-2">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">ID</th>
+                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Nome da Especialidade</th>
+                <th class="px-6 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Ações</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-100">
+              <tr v-for="esp in especialidades" :key="esp.id" class="hover:bg-gray-50/50 transition">
+                <td class="px-6 py-4 text-sm font-semibold text-gray-900 font-mono">#{{ esp.id }}</td>
+                <td class="px-6 py-4 text-sm text-gray-600">{{ esp.nome }}</td>
+                <td class="px-6 py-4 text-sm text-center flex justify-center gap-2">
+                  <button 
+                    @click="confirmarInativarEsp(esp)" 
+                    class="p-2 rounded text-red-600 hover:bg-red-50 transition" 
+                    title="Remover Especialidade"
+                  >
+                    <TrashIcon class="h-5 w-5" />
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </Card>
+    </div>
+
+    <!-- Tab 4: Gerenciar Sintomas & Regras -->
+    <div v-show="abaAtiva === 'sintomas'" class="space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Lista de Sintomas -->
+        <Card class="lg:col-span-2">
+          <template #header>
+            <div class="pb-2">
+              <h2 class="text-lg font-semibold text-gray-700">Sintomas do Catálogo</h2>
+              <p class="text-xs text-gray-400">Sintomas clínicos gerais cadastrados e suas gravidades padrão.</p>
+            </div>
+          </template>
+          
+          <div v-if="loadingCatalog" class="text-center py-8">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent"></div>
+            <p class="text-sm text-gray-500 mt-2">Carregando sintomas...</p>
+          </div>
+          
+          <div v-else-if="sintomas.length === 0" class="text-center py-12">
+            <p class="text-sm text-gray-500">Nenhum sintoma cadastrado.</p>
+          </div>
+          
+          <div v-else class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 mt-2">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">ID</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Sintoma</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Pontuação</th>
+                  <th class="px-6 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Ações</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-100">
+                <tr v-for="sint in sintomas" :key="sint.id" class="hover:bg-gray-50/50 transition">
+                  <td class="px-6 py-4 text-sm font-semibold text-gray-900 font-mono">#{{ sint.id }}</td>
+                  <td class="px-6 py-4 text-sm text-gray-600 font-medium">{{ sint.nome }}</td>
+                  <td class="px-6 py-4 text-sm">
+                    <span :class="scoreClass(sint.pontuacao)" class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-bold uppercase">
+                      {{ sint.pontuacao }} pts
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 text-sm text-center flex justify-center gap-2">
+                    <button 
+                      @click="confirmarInativarSint(sint)" 
+                      class="p-2 rounded text-red-600 hover:bg-red-50 transition" 
+                      title="Remover Sintoma"
+                    >
+                      <TrashIcon class="h-5 w-5" />
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </Card>
+
+        <!-- Regras de Override de Risco / Pontuação -->
+        <div class="space-y-6">
+          <!-- Nova Regra Card -->
+          <Card>
+            <template #header>
+              <h3 class="text-md font-bold text-gray-800">Definir Pontuação Específica</h3>
+              <p class="text-xs text-gray-400 mt-0.5">Customize a pontuação de um sintoma para uma especialidade específica.</p>
+            </template>
+            
+            <form @submit.prevent="salvarRegra" class="space-y-4 mt-2">
+              <div class="form-group">
+                <label class="form-label text-xs">Sintoma</label>
+                <select v-model.number="novaRegra.sintoma_id" class="form-control text-sm" required>
+                  <option v-for="s in sintomas" :key="s.id" :value="s.id">{{ s.nome }}</option>
+                </select>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label text-xs">Especialidade Destino</label>
+                <select v-model.number="novaRegra.especialidade_id" class="form-control text-sm" required>
+                  <option v-for="e in especialidades" :key="e.id" :value="e.id">{{ e.nome }}</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label text-xs">Pontuação Específica</label>
+                <input type="number" v-model.number="novaRegra.pontuacao" min="1" class="form-control text-sm" required />
+              </div>
+
+              <Button type="submit" variant="primary" class="w-full text-xs py-2" :loading="salvandoRegra">
+                Salvar Regra
+              </Button>
+            </form>
+          </Card>
+
+          <!-- Regras Existentes -->
+          <Card>
+            <template #header>
+              <h3 class="text-md font-bold text-gray-800">Regras Customizadas</h3>
+              <p class="text-xs text-gray-400 mt-0.5">Regras que sobrescrevem a pontuação padrão.</p>
+            </template>
+            
+            <div v-if="regras.length === 0" class="text-center py-6 text-xs text-gray-400">
+              Nenhuma regra customizada ativa.
+            </div>
+            
+            <div v-else class="space-y-3 mt-2 max-h-80 overflow-y-auto pr-1">
+              <div 
+                v-for="reg in regras" 
+                :key="reg.sintoma_id + '-' + reg.especialidade_id" 
+                class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100 text-xs"
+              >
+                <div class="space-y-1 pr-2">
+                  <p class="font-semibold text-gray-700">
+                    {{ obterNomeSintoma(reg.sintoma_id) }}
+                  </p>
+                  <p class="text-gray-400 flex items-center gap-1">
+                    ➔ para <span class="font-medium text-gray-600">{{ obterNomeEspecialidade(reg.especialidade_id) }}</span>
+                  </p>
+                  <span :class="scoreClass(reg.pontuacao)" class="inline-flex px-1.5 py-0.5 rounded text-[10px] font-bold uppercase mt-1">
+                    {{ reg.pontuacao }} pts
+                  </span>
+                </div>
+                <button 
+                  @click="confirmarInativarRegra(reg)" 
+                  class="p-1 text-red-500 hover:bg-red-50 rounded transition"
+                  title="Remover Regra"
+                >
+                  <TrashIcon class="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          </Card>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Criar Especialidade -->
+    <Modal :show="mostrarModalCriarEsp" @close="mostrarModalCriarEsp = false">
+      <template #header>Cadastrar Nova Especialidade</template>
+      
+      <form @submit.prevent="salvarNovaEspecialidade" class="space-y-4">
+        <div class="form-group">
+          <label class="form-label">Nome da Especialidade</label>
+          <input 
+            type="text" 
+            v-model="novaEsp.nome" 
+            class="form-control" 
+            required 
+            placeholder="Ex: Pneumologia"
+          />
+        </div>
+        <p v-if="erroFormCatalog" class="text-xs text-red-500 font-semibold">{{ erroFormCatalog }}</p>
+      </form>
+
+      <template #footer>
+        <Button variant="default" @click="mostrarModalCriarEsp = false">Cancelar</Button>
+        <Button variant="primary" :loading="salvandoCatalog" @click="salvarNovaEspecialidade">Salvar</Button>
+      </template>
+    </Modal>
+
+    <!-- Modal Criar Sintoma -->
+    <Modal :show="mostrarModalCriarSint" @close="mostrarModalCriarSint = false">
+      <template #header>Cadastrar Novo Sintoma</template>
+      
+      <form @submit.prevent="salvarNovoSintoma" class="space-y-4">
+        <div class="form-group">
+          <label class="form-label">Nome do Sintoma</label>
+          <input 
+            type="text" 
+            v-model="novoSint.nome" 
+            class="form-control" 
+            required 
+            placeholder="Ex: Tosse seca persistente"
+          />
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Pontuação Padrão</label>
+          <input 
+            type="number" 
+            v-model.number="novoSint.pontuacao" 
+            min="1" 
+            class="form-control" 
+            required 
+            placeholder="Ex: 5"
+          />
+        </div>
+        <p v-if="erroFormCatalog" class="text-xs text-red-500 font-semibold">{{ erroFormCatalog }}</p>
+      </form>
+
+      <template #footer>
+        <Button variant="default" @click="mostrarModalCriarSint = false">Cancelar</Button>
+        <Button variant="primary" :loading="salvandoCatalog" @click="salvarNovoSintoma">Salvar</Button>
+      </template>
+    </Modal>
 
     <!-- Tab 2: Estatísticas de Regulação -->
     <div v-show="abaAtiva === 'estatisticas'" class="space-y-6">
@@ -369,7 +642,9 @@ import {
   TrashIcon,
   ChartBarIcon,
   ExclamationTriangleIcon,
-  InboxIcon
+  InboxIcon,
+  QueueListIcon,
+  ClipboardDocumentListIcon
 } from '@heroicons/vue/24/outline';
 
 const authStore = useAuthStore();
@@ -429,12 +704,154 @@ const carregarEstatisticas = async () => {
   }
 };
 
+const especialidades = ref<any[]>([]);
+const sintomas = ref<any[]>([]);
+const regras = ref<any[]>([]);
+const loadingCatalog = ref(false);
+const salvandoCatalog = ref(false);
+const erroFormCatalog = ref('');
+
+const mostrarModalCriarEsp = ref(false);
+const mostrarModalCriarSint = ref(false);
+
+const novaEsp = ref({ nome: '' });
+const novoSint = ref({ nome: '', pontuacao: 1 });
+const novaRegra = ref({ sintoma_id: 1, especialidade_id: 1, pontuacao: 5 });
+const salvandoRegra = ref(false);
+
+const carregarCatalogos = async () => {
+  loadingCatalog.value = true;
+  try {
+    const resEsp = await api.get('/api/admin/especialidades');
+    especialidades.value = resEsp.data;
+    
+    const resSint = await api.get('/api/admin/sintomas');
+    sintomas.value = resSint.data;
+    
+    const resReg = await api.get('/api/admin/regras');
+    regras.value = resReg.data;
+
+    if (sintomas.value.length > 0) novaRegra.value.sintoma_id = sintomas.value[0].id;
+    if (especialidades.value.length > 0) novaRegra.value.especialidade_id = especialidades.value[0].id;
+  } catch (error) {
+    console.error("Erro ao carregar catálogos:", error);
+  } finally {
+    loadingCatalog.value = false;
+  }
+};
+
+const abrirModalCriarEsp = () => {
+  novaEsp.value = { nome: '' };
+  erroFormCatalog.value = '';
+  mostrarModalCriarEsp.value = true;
+};
+
+const salvarNovaEspecialidade = async () => {
+  erroFormCatalog.value = '';
+  salvandoCatalog.value = true;
+  try {
+    await api.post('/api/admin/especialidades', novaEsp.value);
+    mostrarModalCriarEsp.value = false;
+    await carregarCatalogos();
+  } catch (error: any) {
+    erroFormCatalog.value = error.response?.data?.detail || "Erro ao salvar especialidade.";
+  } finally {
+    salvandoCatalog.value = false;
+  }
+};
+
+const confirmarInativarEsp = async (esp: any) => {
+  if (confirm(`Tem certeza que deseja remover a especialidade "${esp.nome}"?`)) {
+    try {
+      await api.delete(`/api/admin/especialidades/${esp.id}`);
+      await carregarCatalogos();
+    } catch (error: any) {
+      alert(error.response?.data?.detail || "Erro ao remover especialidade.");
+    }
+  }
+};
+
+const abrirModalCriarSint = () => {
+  novoSint.value = { nome: '', pontuacao: 1 };
+  erroFormCatalog.value = '';
+  mostrarModalCriarSint.value = true;
+};
+
+const salvarNovoSintoma = async () => {
+  erroFormCatalog.value = '';
+  salvandoCatalog.value = true;
+  try {
+    await api.post('/api/admin/sintomas', novoSint.value);
+    mostrarModalCriarSint.value = false;
+    await carregarCatalogos();
+  } catch (error: any) {
+    erroFormCatalog.value = error.response?.data?.detail || "Erro ao salvar sintoma.";
+  } finally {
+    salvandoCatalog.value = false;
+  }
+};
+
+const confirmarInativarSint = async (sint: any) => {
+  if (confirm(`Tem certeza que deseja remover o sintoma "${sint.nome}"?`)) {
+    try {
+      await api.delete(`/api/admin/sintomas/${sint.id}`);
+      await carregarCatalogos();
+    } catch (error: any) {
+      alert(error.response?.data?.detail || "Erro ao remover sintoma.");
+    }
+  }
+};
+
+const salvarRegra = async () => {
+  salvandoRegra.value = true;
+  try {
+    await api.post('/api/admin/regras', novaRegra.value);
+    await carregarCatalogos();
+    alert("Regra de pontuação salva com sucesso!");
+  } catch (error: any) {
+    alert(error.response?.data?.detail || "Erro ao salvar regra.");
+  } finally {
+    salvandoRegra.value = false;
+  }
+};
+
+const confirmarInativarRegra = async (reg: any) => {
+  if (confirm(`Deseja remover a regra customizada para este sintoma nesta especialidade?`)) {
+    try {
+      await api.delete(`/api/admin/regras/${reg.sintoma_id}/${reg.especialidade_id}`);
+      await carregarCatalogos();
+    } catch (error: any) {
+      alert(error.response?.data?.detail || "Erro ao remover regra.");
+    }
+  }
+};
+
+const obterNomeSintoma = (id: number) => {
+  const s = sintomas.value.find(x => x.id === id);
+  return s ? s.nome : `Sintoma ${id}`;
+};
+
+const obterNomeEspecialidade = (id: number) => {
+  const e = especialidades.value.find(x => x.id === id);
+  return e ? e.nome : `Especialidade ${id}`;
+};
+
+const scoreClass = (score: number) => {
+  if (score >= 10) return 'bg-red-100 text-red-700';
+  if (score >= 5) return 'bg-amber-100 text-amber-700';
+  return 'bg-green-100 text-green-700';
+};
+
 const alterarAba = (aba: string) => {
   abaAtiva.value = aba;
   if (aba === 'usuarios') {
     carregarUsuarios();
   } else if (aba === 'estatisticas') {
     carregarEstatisticas();
+  } else if (aba === 'especialidades') {
+    carregarCatalogos();
+  } else if (aba === 'sintomas') {
+    carregarCatalogos();
   }
 };
 

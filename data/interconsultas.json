@@ -11,10 +11,10 @@
       }
     ],
     "gravidade": "VERMELHO",
-    "status": "PENDENTE",
-    "marcado_por": null,
+    "status": "AGENDADO",
+    "marcado_por": "regulador",
     "criado_em": "2026-06-20T15:48:57.212877+00:00",
-    "atualizado_em": "2026-06-20T15:48:57.212877+00:00",
+    "atualizado_em": "2026-06-20T15:58:12.465232+00:00",
     "deleted_at": null
   },
   {
@@ -29,11 +29,12 @@
       }
     ],
     "gravidade": "VERMELHO",
-    "status": "PENDENTE",
-    "marcado_por": null,
+    "status": "AGENDADO",
+    "marcado_por": "regulador",
     "criado_em": "2026-06-20T15:48:57.212877+00:00",
-    "atualizado_em": "2026-06-20T15:48:57.212877+00:00",
-    "deleted_at": null
+    "atualizado_em": "2026-06-21T00:46:26.896290+00:00",
+    "deleted_at": null,
+    "data_consulta": "2025-06-19T03:11:00+00:00"
   },
   {
     "id": 3,
@@ -101,11 +102,12 @@
       }
     ],
     "gravidade": "VERMELHO",
-    "status": "PENDENTE",
-    "marcado_por": null,
+    "status": "AGENDADO",
+    "marcado_por": "admin",
     "criado_em": "2026-06-20T15:48:57.212877+00:00",
-    "atualizado_em": "2026-06-20T15:48:57.212877+00:00",
-    "deleted_at": null
+    "atualizado_em": "2026-06-21T01:16:42.036354+00:00",
+    "deleted_at": null,
+    "data_consulta": "2026-07-12T21:20:00+00:00"
   },
   {
     "id": 7,
@@ -137,10 +139,10 @@
       }
     ],
     "gravidade": "AMARELO",
-    "status": "PENDENTE",
-    "marcado_por": null,
+    "status": "AGENDADO",
+    "marcado_por": "regulador",
     "criado_em": "2026-06-20T15:48:57.212877+00:00",
-    "atualizado_em": "2026-06-20T15:48:57.212877+00:00",
+    "atualizado_em": "2026-06-20T15:58:20.141638+00:00",
     "deleted_at": null
   },
   {
@@ -159,6 +161,58 @@
     "marcado_por": null,
     "criado_em": "2026-06-20T15:52:03.181487+00:00",
     "atualizado_em": "2026-06-20T15:52:03.181487+00:00",
+    "deleted_at": null
+  },
+  {
+    "id": 10,
+    "paciente_cns": "gAAAAABqNrg_g_Ffc8V-6eKH2lLJxGnPiIYcSh7FrnG9umHvStSkZFo_xyJOcddbc_mBWOF2tC1IBNwh8Cf3P5RxaMeOMYDMCA==",
+    "medico_solicitante_crm": "Administrador do Sistema",
+    "especialidade_id": 16,
+    "sintomas_json": [
+      {
+        "id": 6,
+        "nome": "Fratura"
+      },
+      {
+        "id": 7,
+        "nome": "Ideação suicida ativa"
+      },
+      {
+        "id": 1,
+        "nome": "Cegueira / Perda súbita de visão"
+      },
+      {
+        "id": 12,
+        "nome": "Convulsão"
+      }
+    ],
+    "gravidade": "VERMELHO",
+    "status": "PENDENTE",
+    "marcado_por": null,
+    "criado_em": "2026-06-20T15:56:47.436330+00:00",
+    "atualizado_em": "2026-06-20T15:56:47.436330+00:00",
+    "deleted_at": null
+  },
+  {
+    "id": 11,
+    "paciente_cns": "gAAAAABqNr0DXdMWYRxil6ERKRaH-6HOIdKiZ8NYYFVlR0w646cXJwL-Td21ovwdX6NVFpBNFppt4QNwWlRivlZIKzrK7vpw4Q==",
+    "medico_solicitante_crm": "Dr. Carlos Silva",
+    "especialidade_id": 1,
+    "sintomas_json": [
+      {
+        "id": 2,
+        "nome": "Infarto / Dor torácica súbita"
+      },
+      {
+        "id": 3,
+        "nome": "AVC / Perda de força unilateral"
+      }
+    ],
+    "gravidade": "VERMELHO",
+    "status": "PENDENTE",
+    "marcado_por": null,
+    "criado_em": "2026-06-20T16:17:07.368546+00:00",
+    "atualizado_em": "2026-06-20T16:17:07.368546+00:00",
     "deleted_at": null
   }
 ]

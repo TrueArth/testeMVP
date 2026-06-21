@@ -7,6 +7,7 @@ SELECT
     gravidade, 
     status, 
     marcado_por,
+    data_consulta,
     criado_em, 
     atualizado_em
 FROM interconsulta_pedidos

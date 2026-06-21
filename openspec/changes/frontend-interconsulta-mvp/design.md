@@ -18,7 +18,7 @@ O backend de interconsulta está implementado (`/api/interconsultas` com POST, G
 - Preview de gravidade calculada no browser antes do POST.
 - Cancelamento via `DELETE` na UI.
 - Testes E2E automatizados (apenas checklist manual neste MVP).
-- Alterações em SQL, Provider, Controller ou Router backend.
+- Alterações em SQL, Provider, Controller ou Router backend. 
 
 ## Decisions
 

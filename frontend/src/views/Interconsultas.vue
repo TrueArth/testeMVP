@@ -26,7 +26,7 @@
             v-model.number="especialidadeId"
             class="form-control bg-white cursor-pointer"
           >
-            <option v-for="esp in ESPECIALIDADES_CATALOGO" :key="esp.id" :value="esp.id">
+            <option v-for="esp in interconsultaStore.especialidades" :key="esp.id" :value="esp.id">
               {{ esp.nome }}
             </option>
           </select>
@@ -90,13 +90,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, onMounted, watch } from 'vue';
 import { useToast } from 'vue-toastification';
 import Card from '../components/Card.vue';
 import Button from '../components/Button.vue';
 import {
-  ESPECIALIDADES_CATALOGO,
-  SINTOMAS_CATALOGO_MVP,
   validarFormularioInterconsulta,
   useInterconsultaStore,
   SintomaCatalogoItem,
@@ -111,11 +109,22 @@ const sintomasSelecionados = ref<SintomaCatalogoItem[]>([]);
 const termoBusca = ref('');
 const showSuggestions = ref(false);
 
+onMounted(() => {
+  interconsultaStore.listarSintomas();
+  interconsultaStore.listarEspecialidades();
+});
+
+watch(() => interconsultaStore.especialidades, (esps) => {
+  if (esps.length > 0 && !especialidadeId.value) {
+    especialidadeId.value = esps[0].id;
+  }
+}, { immediate: true });
+
 const sintomasSugeridos = computed(() => {
   const query = termoBusca.value.trim().toLowerCase();
   const selecionadosIds = sintomasSelecionados.value.map((s) => s.id);
   
-  return SINTOMAS_CATALOGO_MVP.filter((s) => {
+  return interconsultaStore.sintomas.filter((s) => {
     const contemQuery = s.nome.toLowerCase().includes(query);
     const naoSelecionado = !selecionadosIds.includes(s.id);
     return contemQuery && naoSelecionado;
@@ -157,11 +166,9 @@ async function enviar(): Promise<void> {
     return;
   }
 
-  const cnsDigits = pacienteCns.value.replace(/\D/g, '');
-
   try {
     const criado = await interconsultaStore.criarPedido({
-      paciente_cns: cnsDigits,
+      paciente_cns: pacienteCns.value,
       medico_solicitante_crm: '-',
       especialidade_id: especialidadeId.value,
       sintomas_json: sintomasSelecionados.value.map((s) => ({ id: s.id, nome: s.nome })),

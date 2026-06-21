@@ -78,7 +78,7 @@ class InterconsultaPostgresProvider(InterconsultaProviderInterface):
         # Para SQLite: busca o registro recém-inserido via SELECT
         select_sql = text(
             "SELECT id, paciente_cns, medico_solicitante_crm, especialidade_id, "
-            "sintomas_json, gravidade, status, marcado_por, criado_em, atualizado_em "
+            "sintomas_json, gravidade, status, marcado_por, data_consulta, criado_em, atualizado_em "
             "FROM interconsulta_pedidos WHERE id = :row_id"
         )
         sel_result = await self.session.execute(select_sql, {"row_id": new_id})
@@ -145,16 +145,16 @@ class InterconsultaPostgresProvider(InterconsultaProviderInterface):
             row = result.mappings().first()
             return row is not None
 
-    async def atualizar_status_pedido(self, pedido_id: int, novo_status: str, marcado_por: str = None) -> bool:
+    async def atualizar_status_pedido(self, pedido_id: int, novo_status: str, marcado_por: str = None, data_consulta: Any = None) -> bool:
         """
         Atualiza o status do pedido de interconsulta.
         Retorna True se o pedido foi atualizado com sucesso.
         """
-        params = {"id": pedido_id, "status": novo_status, "marcado_por": marcado_por}
+        params = {"id": pedido_id, "status": novo_status, "marcado_por": marcado_por, "data_consulta": data_consulta}
         if self._dialect == "sqlite":
             update_sql = text(
                 "UPDATE interconsulta_pedidos "
-                "SET status = :status, marcado_por = :marcado_por, atualizado_em = CURRENT_TIMESTAMP "
+                "SET status = :status, marcado_por = :marcado_por, data_consulta = :data_consulta, atualizado_em = CURRENT_TIMESTAMP "
                 "WHERE id = :id AND deleted_at IS NULL"
             )
             result = await self.session.execute(update_sql, params)

@@ -91,3 +91,30 @@ def get_user_provider(strategy: str = "POSTGRES") -> Callable[..., UserProviderI
         return _get_user_mock_provider
     else:
         raise ValueError(f"Estratégia de usuário desconhecida: {selected_strategy}")
+
+# --- Catalog Provider Factory ---
+from .providers.interfaces.catalogo_provider_interface import CatalogoProviderInterface
+from .providers.implementations.catalogo_postgres_provider import CatalogoPostgresProvider
+from .providers.implementations.catalogo_mock_provider import CatalogoMockProvider
+
+def _get_catalogo_postgres_provider(
+    session: AsyncSession = Depends(get_app_db_session)
+) -> CatalogoProviderInterface:
+    dialect = session.bind.dialect.name if session.bind else "postgresql"
+    return CatalogoPostgresProvider(session=session, dialect=dialect)
+
+def _get_catalogo_mock_provider() -> CatalogoProviderInterface:
+    return CatalogoMockProvider()
+
+def get_catalogo_provider(strategy: str = "POSTGRES") -> Callable[..., CatalogoProviderInterface]:
+    env_strategy = os.getenv("USER_PROVIDER_TYPE", None)
+    if not env_strategy:
+        env_strategy = os.getenv("INTERCONSULTA_PROVIDER_TYPE", "POSTGRES")
+    selected_strategy = env_strategy if env_strategy is not None else strategy
+    
+    if selected_strategy.upper() == "POSTGRES":
+        return _get_catalogo_postgres_provider
+    elif selected_strategy.upper() == "MOCK":
+        return _get_catalogo_mock_provider
+    else:
+        raise ValueError(f"Estratégia de catálogo desconhecida: {selected_strategy}")

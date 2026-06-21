@@ -8,7 +8,7 @@ from src.services.queue_optimizer_service import QueueOptimizerService
 
 from src.controllers.interconsulta_controller import InterconsultaController
 from src.providers.interfaces.interconsulta_provider_interface import InterconsultaProviderInterface
-from src.dependencies import get_interconsulta_provider
+from src.dependencies import get_interconsulta_provider, get_catalogo_provider
 from src.auth.auth import auth_handler
 
 get_current_user = auth_handler.decode_token
@@ -46,6 +46,7 @@ async def criar_interconsulta(
     payload: InterconsultaCreate,
     background_tasks: BackgroundTasks,
     provider: InterconsultaProviderInterface = Depends(get_interconsulta_provider(strategy="POSTGRES")),
+    catalogo_provider = Depends(get_catalogo_provider()),
     current_user: dict = Depends(verify_medico_user)  # Exige token JWT de médico/admin
 ):
     """
@@ -59,6 +60,7 @@ async def criar_interconsulta(
     pedido = await InterconsultaController.solicitar_interconsulta(
         payload=dados,
         provider=provider,
+        catalogo_provider=catalogo_provider,
         background_tasks=background_tasks
     )
     return pedido
@@ -113,7 +115,7 @@ async def atualizar_status_pedido(
     Atualiza o status de uma interconsulta. Apenas para reguladores/admin.
     """
     username = current_user.get("username") or current_user.get("sub") or "regulador"
-    return await InterconsultaController.atualizar_status(pedido_id, payload.status, provider, marcado_por=username)
+    return await InterconsultaController.atualizar_status(pedido_id, payload.status, provider, marcado_por=username, data_consulta=payload.data_consulta)
 
 @router.post("/{pedido_id}/retry")
 async def reprocessar_pedido(
@@ -126,3 +128,25 @@ async def reprocessar_pedido(
     Reprocessa o envio de uma interconsulta que falhou. Apenas para reguladores/admin.
     """
     return await InterconsultaController.reprocessar_envio(pedido_id, provider, background_tasks)
+
+@router.get("/sintomas")
+async def listar_sintomas(
+    provider = Depends(get_catalogo_provider()),
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Lista todos os sintomas ativos do catálogo.
+    """
+    from src.controllers.catalogo_controller import CatalogoController
+    return await CatalogoController.listar_sintomas(provider)
+
+@router.get("/especialidades")
+async def listar_especialidades(
+    provider = Depends(get_catalogo_provider()),
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Lista todas as especialidades ativas do catálogo.
+    """
+    from src.controllers.catalogo_controller import CatalogoController
+    return await CatalogoController.listar_especialidades(provider)

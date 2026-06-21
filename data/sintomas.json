@@ -1,0 +1,114 @@
+[
+  {
+    "id": 1,
+    "nome": "Cegueira / Perda súbita de visão",
+    "pontuacao": 10,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "id": 2,
+    "nome": "Infarto / Dor torácica súbita",
+    "pontuacao": 10,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "id": 3,
+    "nome": "AVC / Perda de força unilateral",
+    "pontuacao": 10,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "id": 4,
+    "nome": "Dor torácica intensa",
+    "pontuacao": 5,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "id": 5,
+    "nome": "Febre alta",
+    "pontuacao": 5,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "id": 6,
+    "nome": "Fratura",
+    "pontuacao": 5,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "id": 7,
+    "nome": "Ideação suicida ativa",
+    "pontuacao": 5,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "id": 8,
+    "nome": "Hematúria macroscópica",
+    "pontuacao": 5,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "id": 9,
+    "nome": "Nódulo tireoidiano palpável",
+    "pontuacao": 1,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "id": 10,
+    "nome": "Dispneia aguda",
+    "pontuacao": 5,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "id": 11,
+    "nome": "Dor abdominal intensa",
+    "pontuacao": 5,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "id": 12,
+    "nome": "Convulsão",
+    "pontuacao": 5,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "id": 13,
+    "nome": "Erupção cutânea com febre",
+    "pontuacao": 1,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "id": 14,
+    "nome": "Confusão mental aguda",
+    "pontuacao": 1,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  }
+]

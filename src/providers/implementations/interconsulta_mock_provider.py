@@ -92,6 +92,7 @@ class InterconsultaMockProvider(InterconsultaProviderInterface):
             "gravidade": pedido_data.get("gravidade", "VERDE"),
             "status": pedido_data.get("status", "PENDENTE"),
             "marcado_por": pedido_data.get("marcado_por"),
+            "data_consulta": None,
             "criado_em": now_str,
             "atualizado_em": now_str,
             "deleted_at": None
@@ -110,6 +111,7 @@ class InterconsultaMockProvider(InterconsultaProviderInterface):
             "gravidade": new_record["gravidade"],
             "status": new_record["status"],
             "marcado_por": new_record["marcado_por"],
+            "data_consulta": None,
             "criado_em": self._parse_datetime(new_record["criado_em"]),
             "atualizado_em": self._parse_datetime(new_record["atualizado_em"])
         }
@@ -136,6 +138,7 @@ class InterconsultaMockProvider(InterconsultaProviderInterface):
                 "gravidade": r.get("gravidade", "VERDE"),
                 "status": r.get("status", "PENDENTE"),
                 "marcado_por": r.get("marcado_por"),
+                "data_consulta": self._parse_datetime(r.get("data_consulta")),
                 "criado_em": self._parse_datetime(r.get("criado_em")),
                 "atualizado_em": self._parse_datetime(r.get("atualizado_em"))
             })
@@ -181,7 +184,7 @@ class InterconsultaMockProvider(InterconsultaProviderInterface):
             
         return found
 
-    async def atualizar_status_pedido(self, pedido_id: int, novo_status: str, marcado_por: str = None) -> bool:
+    async def atualizar_status_pedido(self, pedido_id: int, novo_status: str, marcado_por: str = None, data_consulta: Any = None) -> bool:
         """
         Updates the status of the requested interconsultation.
         """
@@ -192,6 +195,11 @@ class InterconsultaMockProvider(InterconsultaProviderInterface):
             if r["id"] == pedido_id and r.get("deleted_at") is None:
                 r["status"] = novo_status
                 r["marcado_por"] = marcado_por
+                if data_consulta is not None:
+                    if isinstance(data_consulta, datetime):
+                        r["data_consulta"] = data_consulta.isoformat()
+                    else:
+                        r["data_consulta"] = str(data_consulta)
                 r["atualizado_em"] = datetime.now(timezone.utc).isoformat()
                 found = True
                 break

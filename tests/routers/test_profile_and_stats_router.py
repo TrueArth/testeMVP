@@ -13,7 +13,7 @@ os.environ["INTERCONSULTA_PROVIDER_TYPE"] = "POSTGRES"
 
 
 from src.main import app
-from src.resources.database import Base
+from src.resources.database import Base, get_app_db_session
 from src.models.user import User  # Registers user table
 from src.models.interconsulta import InterconsultaPedido  # Registers table
 from src.dependencies import _get_user_postgres_provider, _get_interconsulta_postgres_provider
@@ -39,6 +39,10 @@ async def _get_sqlite_interconsulta_provider() -> InterconsultaPostgresProvider:
     async with _TestSession() as session:
         yield InterconsultaPostgresProvider(session=session, dialect="sqlite")
 
+async def _get_test_db_session():
+    async with _TestSession() as session:
+        yield session
+
 # Helper mock users
 def _mock_admin_user():
     return {"username": "admin_test", "role": "admin", "groups": ["GLO-SEC-HCPE-SETISD"]}
@@ -58,6 +62,7 @@ async def create_tables():
 async def client():
     app.dependency_overrides[_get_user_postgres_provider] = _get_sqlite_user_provider
     app.dependency_overrides[_get_interconsulta_postgres_provider] = _get_sqlite_interconsulta_provider
+    app.dependency_overrides[get_app_db_session] = _get_test_db_session
     async with AsyncClient(
         transport=ASGITransport(app=app),
         base_url="http://testserver",
