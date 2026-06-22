@@ -53,51 +53,144 @@ class CatalogoMockProvider(CatalogoProviderInterface):
         os.makedirs(os.path.dirname(self.sints_path), exist_ok=True)
         sints_data = self._load_file(self.sints_path) if os.path.exists(self.sints_path) else []
         has_old_sints = any("gravidade_padrao" in item for item in sints_data)
+        
+        mock_sints = [
+            {"id": 1, "nome": "Cegueira / Perda súbita de visão", "pontuacao": 10, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"id": 2, "nome": "Infarto / Dor torácica súbita", "pontuacao": 10, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"id": 3, "nome": "AVC / Perda de força unilateral", "pontuacao": 10, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"id": 4, "nome": "Dor torácica intensa", "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"id": 5, "nome": "Febre alta", "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"id": 6, "nome": "Fratura", "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"id": 7, "nome": "Ideação suicida ativa", "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"id": 8, "nome": "Hematúria macroscópica", "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"id": 9, "nome": "Nódulo tireoidiano palpável", "pontuacao": 1, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"id": 10, "nome": "Dispneia aguda", "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"id": 11, "nome": "Dor abdominal intensa", "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"id": 12, "nome": "Convulsão", "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"id": 13, "nome": "Erupção cutânea com febre", "pontuacao": 1, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"id": 14, "nome": "Confusão mental aguda", "pontuacao": 1, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"id": 15, "nome": "Doença Renal Crônica estágio V", "pontuacao": 10, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"id": 16, "nome": "Síndrome Nefrótica grave (proteinúria > 8g/24h e/ou disfunção renal aguda)", "pontuacao": 10, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"id": 17, "nome": "Síndrome Nefrítica ou Glomerulonefrite rapidamente progressiva", "pontuacao": 10, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"id": 18, "nome": "Hipertensão arterial acelerada ou maligna", "pontuacao": 10, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"id": 19, "nome": "Injúria renal aguda", "pontuacao": 10, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"id": 20, "nome": "Alterações em sumário de urina com Injúria renal aguda", "pontuacao": 10, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"id": 21, "nome": "Doença Renal Crônica estágio IIIa a IV", "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"id": 22, "nome": "Sinais/sintomas e alterações laboratoriais de DMO-DRC", "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"id": 23, "nome": "DRC/dialítico com osteoporose e/ou fraturas", "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"id": 24, "nome": "DRC/dialítico com hiperparatireoidismo secundário grave", "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"id": 25, "nome": "Transplantado renal com osteoporose ou hiperparatireoidismo persistente", "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"id": 26, "nome": "DRC de etiologia indeterminada com suspeita de causa genética/rara", "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"id": 27, "nome": "Investigação de síndrome nefrótica ou nefrítica familiar", "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"id": 28, "nome": "Distúrbio hidroeletrolítico de difícil diagnóstico e manejo", "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"id": 29, "nome": "Investigação de nefrocalcinose sem causa definida", "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"id": 30, "nome": "Síndrome Nefrótica leve a moderada (proteinúria < 8g/24h)", "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"id": 31, "nome": "Hematúria isolada", "pontuacao": 2, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"id": 32, "nome": "Proteinúria subnefrótica isolada", "pontuacao": 2, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"id": 33, "nome": "Doença Renal Crônica estágio I ou II", "pontuacao": 2, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"id": 34, "nome": "Infecções urinárias complicadas (repetição e/ou rim único)", "pontuacao": 2, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+        ]
         if not os.path.exists(self.sints_path) or sints_data == [] or has_old_sints:
-            mock_sints = [
-                {"id": 1, "nome": "Cegueira / Perda súbita de visão", "pontuacao": 10, "criado_em": None, "atualizado_em": None, "deleted_at": None},
-                {"id": 2, "nome": "Infarto / Dor torácica súbita", "pontuacao": 10, "criado_em": None, "atualizado_em": None, "deleted_at": None},
-                {"id": 3, "nome": "AVC / Perda de força unilateral", "pontuacao": 10, "criado_em": None, "atualizado_em": None, "deleted_at": None},
-                {"id": 4, "nome": "Dor torácica intensa", "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
-                {"id": 5, "nome": "Febre alta", "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
-                {"id": 6, "nome": "Fratura", "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
-                {"id": 7, "nome": "Ideação suicida ativa", "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
-                {"id": 8, "nome": "Hematúria macroscópica", "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
-                {"id": 9, "nome": "Nódulo tireoidiano palpável", "pontuacao": 1, "criado_em": None, "atualizado_em": None, "deleted_at": None},
-                {"id": 10, "nome": "Dispneia aguda", "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
-                {"id": 11, "nome": "Dor abdominal intensa", "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
-                {"id": 12, "nome": "Convulsão", "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
-                {"id": 13, "nome": "Erupção cutânea com febre", "pontuacao": 1, "criado_em": None, "atualizado_em": None, "deleted_at": None},
-                {"id": 14, "nome": "Confusão mental aguda", "pontuacao": 1, "criado_em": None, "atualizado_em": None, "deleted_at": None},
-            ]
-            self._save_file(self.sints_path, mock_sints)
+            sints_data = mock_sints
+        else:
+            # Merge missing ones
+            existing_ids = {item["id"] for item in sints_data}
+            for item in mock_sints:
+                if item["id"] not in existing_ids:
+                    sints_data.append(item)
+        self._save_file(self.sints_path, sints_data)
 
         # 3. Rules (Overrides)
         os.makedirs(os.path.dirname(self.rules_path), exist_ok=True)
         rules_data = self._load_file(self.rules_path) if os.path.exists(self.rules_path) else []
         has_old_rules = any("gravidade" in item for item in rules_data)
+        
+        mock_rules = [
+            {"sintoma_id": 4, "especialidade_id": 1, "pontuacao": 10, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"sintoma_id": 10, "especialidade_id": 1, "pontuacao": 10, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"sintoma_id": 2, "especialidade_id": 1, "pontuacao": 10, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            # Clínica Médica (ID 2)
+            {"sintoma_id": 5, "especialidade_id": 2, "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"sintoma_id": 12, "especialidade_id": 2, "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"sintoma_id": 14, "especialidade_id": 2, "pontuacao": 1, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            # Dermatologia (ID 3)
+            {"sintoma_id": 13, "especialidade_id": 3, "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"sintoma_id": 9, "especialidade_id": 3, "pontuacao": 1, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            # Endocrinologia (ID 4)
+            {"sintoma_id": 9, "especialidade_id": 4, "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"sintoma_id": 5, "especialidade_id": 4, "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            # Gastroenterologia (ID 5)
+            {"sintoma_id": 11, "especialidade_id": 5, "pontuacao": 10, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"sintoma_id": 10, "especialidade_id": 5, "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            # Geriatria (ID 6)
+            {"sintoma_id": 14, "especialidade_id": 6, "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"sintoma_id": 7, "especialidade_id": 6, "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            # Hematologia (ID 7)
+            {"sintoma_id": 8, "especialidade_id": 7, "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"sintoma_id": 5, "especialidade_id": 7, "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            # Infectologia (ID 8)
+            {"sintoma_id": 5, "especialidade_id": 8, "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"sintoma_id": 13, "especialidade_id": 8, "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            # Medicina de Família e Comunidade (ID 9)
+            {"sintoma_id": 1, "especialidade_id": 9, "pontuacao": 10, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"sintoma_id": 4, "especialidade_id": 9, "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"sintoma_id": 5, "especialidade_id": 9, "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"sintoma_id": 6, "especialidade_id": 9, "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            # Medicina do Trabalho (ID 10)
+            {"sintoma_id": 4, "especialidade_id": 10, "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"sintoma_id": 14, "especialidade_id": 10, "pontuacao": 1, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            # Nefrologia (ID 11)
+            {"sintoma_id": 8, "especialidade_id": 11, "pontuacao": 10, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            # Novas regras da Nefrologia (ID 11)
+            {"sintoma_id": 15, "especialidade_id": 11, "pontuacao": 10, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"sintoma_id": 16, "especialidade_id": 11, "pontuacao": 10, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"sintoma_id": 17, "especialidade_id": 11, "pontuacao": 10, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"sintoma_id": 18, "especialidade_id": 11, "pontuacao": 10, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"sintoma_id": 19, "especialidade_id": 11, "pontuacao": 10, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"sintoma_id": 20, "especialidade_id": 11, "pontuacao": 10, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"sintoma_id": 21, "especialidade_id": 11, "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"sintoma_id": 22, "especialidade_id": 11, "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"sintoma_id": 23, "especialidade_id": 11, "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"sintoma_id": 24, "especialidade_id": 11, "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"sintoma_id": 25, "especialidade_id": 11, "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"sintoma_id": 26, "especialidade_id": 11, "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"sintoma_id": 27, "especialidade_id": 11, "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"sintoma_id": 28, "especialidade_id": 11, "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"sintoma_id": 29, "especialidade_id": 11, "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"sintoma_id": 30, "especialidade_id": 11, "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"sintoma_id": 31, "especialidade_id": 11, "pontuacao": 2, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"sintoma_id": 32, "especialidade_id": 11, "pontuacao": 2, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"sintoma_id": 33, "especialidade_id": 11, "pontuacao": 2, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"sintoma_id": 34, "especialidade_id": 11, "pontuacao": 2, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            # Neurologia (ID 12)
+            {"sintoma_id": 12, "especialidade_id": 12, "pontuacao": 10, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"sintoma_id": 14, "especialidade_id": 12, "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            # Oncologia (ID 13)
+            {"sintoma_id": 9, "especialidade_id": 13, "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            # Pediatria (ID 14)
+            {"sintoma_id": 5, "especialidade_id": 14, "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"sintoma_id": 12, "especialidade_id": 14, "pontuacao": 10, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            # Pneumologia (ID 15)
+            {"sintoma_id": 10, "especialidade_id": 15, "pontuacao": 10, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            # Psiquiatria (ID 16)
+            {"sintoma_id": 7, "especialidade_id": 16, "pontuacao": 10, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            # Reumatologia (ID 17)
+            {"sintoma_id": 6, "especialidade_id": 17, "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            # Urologia (ID 18)
+            {"sintoma_id": 8, "especialidade_id": 18, "pontuacao": 10, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            # Ginecologia e Obstetrícia (ID 19)
+            {"sintoma_id": 11, "especialidade_id": 19, "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+            {"sintoma_id": 5, "especialidade_id": 19, "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
+        ]
         if not os.path.exists(self.rules_path) or rules_data == [] or has_old_rules:
-            mock_rules = [
-                {"sintoma_id": 4, "especialidade_id": 1, "pontuacao": 10, "criado_em": None, "atualizado_em": None, "deleted_at": None},
-                {"sintoma_id": 10, "especialidade_id": 1, "pontuacao": 10, "criado_em": None, "atualizado_em": None, "deleted_at": None},
-                {"sintoma_id": 13, "especialidade_id": 3, "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
-                {"sintoma_id": 9, "especialidade_id": 4, "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
-                {"sintoma_id": 11, "especialidade_id": 5, "pontuacao": 10, "criado_em": None, "atualizado_em": None, "deleted_at": None},
-                {"sintoma_id": 14, "especialidade_id": 6, "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
-                {"sintoma_id": 5, "especialidade_id": 8, "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
-                {"sintoma_id": 13, "especialidade_id": 8, "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
-                {"sintoma_id": 8, "especialidade_id": 11, "pontuacao": 10, "criado_em": None, "atualizado_em": None, "deleted_at": None},
-                {"sintoma_id": 12, "especialidade_id": 12, "pontuacao": 10, "criado_em": None, "atualizado_em": None, "deleted_at": None},
-                {"sintoma_id": 14, "especialidade_id": 12, "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
-                {"sintoma_id": 9, "especialidade_id": 13, "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
-                {"sintoma_id": 5, "especialidade_id": 14, "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
-                {"sintoma_id": 12, "especialidade_id": 14, "pontuacao": 10, "criado_em": None, "atualizado_em": None, "deleted_at": None},
-                {"sintoma_id": 10, "especialidade_id": 15, "pontuacao": 10, "criado_em": None, "atualizado_em": None, "deleted_at": None},
-                {"sintoma_id": 7, "especialidade_id": 16, "pontuacao": 10, "criado_em": None, "atualizado_em": None, "deleted_at": None},
-                {"sintoma_id": 6, "especialidade_id": 17, "pontuacao": 5, "criado_em": None, "atualizado_em": None, "deleted_at": None},
-                {"sintoma_id": 8, "especialidade_id": 18, "pontuacao": 10, "criado_em": None, "atualizado_em": None, "deleted_at": None},
-            ]
-            self._save_file(self.rules_path, mock_rules)
+            rules_data = mock_rules
+        else:
+            # Merge missing ones
+            existing_rules = {(item["sintoma_id"], item["especialidade_id"]) for item in rules_data}
+            for item in mock_rules:
+                if (item["sintoma_id"], item["especialidade_id"]) not in existing_rules:
+                    rules_data.append(item)
+        self._save_file(self.rules_path, rules_data)
 
     def _load_file(self, path: str) -> List[Dict[str, Any]]:
         try:
@@ -168,6 +261,13 @@ class CatalogoMockProvider(CatalogoProviderInterface):
     async def listar_sintomas(self) -> List[Dict[str, Any]]:
         data = self._load_file(self.sints_path)
         return [r for r in data if r.get("deleted_at") is None]
+
+    async def listar_sintomas_por_especialidade(self, especialidade_id: int) -> List[Dict[str, Any]]:
+        rules = await self.listar_regras_gravidade()
+        sintomas_ids = {r["sintoma_id"] for r in rules if r["especialidade_id"] == especialidade_id}
+        
+        sintomas = await self.listar_sintomas()
+        return [s for s in sintomas if s["id"] in sintomas_ids]
 
     async def inativar_sintoma(self, sintoma_id: int) -> bool:
         data = self._load_file(self.sints_path)

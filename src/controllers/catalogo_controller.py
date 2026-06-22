@@ -41,13 +41,17 @@ class CatalogoController:
     # --- Sintomas ---
 
     @staticmethod
-    async def criar_sintoma(nome: str, pontuacao: int, provider: CatalogoProviderInterface) -> dict:
+    async def criar_sintoma(nome: str, pontuacao: int, especialidade_id: int, provider: CatalogoProviderInterface) -> dict:
         if not nome or not nome.strip():
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Nome do sintoma inválido.")
         if not isinstance(pontuacao, int) or pontuacao < 1:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Pontuação padrão inválida. Deve ser maior ou igual a 1.")
         try:
-            return await provider.inserir_sintoma(nome.strip(), pontuacao)
+            sintoma = await provider.inserir_sintoma(nome.strip(), pontuacao)
+            sintoma_id = sintoma.get("id")
+            if sintoma_id:
+                await provider.inserir_regra_gravidade(sintoma_id, especialidade_id, pontuacao)
+            return sintoma
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Erro ao criar sintoma: {str(e)}")
 
@@ -57,6 +61,17 @@ class CatalogoController:
             return await provider.listar_sintomas()
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Erro ao listar sintomas: {str(e)}")
+
+    @staticmethod
+    async def listar_sintomas_por_especialidade(especialidade_id: int, provider: CatalogoProviderInterface) -> List[Dict[str, Any]]:
+        try:
+            sintomas = await provider.listar_sintomas_por_especialidade(especialidade_id)
+            if not sintomas:
+                # Se não houver sintomas específicos mapeados para a especialidade, retorna todos os sintomas como fallback
+                return await provider.listar_sintomas()
+            return sintomas
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Erro ao listar sintomas por especialidade: {str(e)}")
 
     @staticmethod
     async def inativar_sintoma(sintoma_id: int, provider: CatalogoProviderInterface) -> dict:

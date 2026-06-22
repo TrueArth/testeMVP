@@ -82,11 +82,12 @@ export const useInterconsultaStore = defineStore('interconsulta', () => {
   const submitting = ref(false);
   const error = ref<string | null>(null);
 
-  async function listarPedidos(): Promise<void> {
+  async function listarPedidos(especialidadeId?: number | null): Promise<void> {
     loading.value = true;
     error.value = null;
     try {
-      const response = await api.get<InterconsultaPedido[]>('/api/interconsultas/');
+      const url = especialidadeId ? `/api/interconsultas/?especialidade_id=${especialidadeId}` : '/api/interconsultas/';
+      const response = await api.get<InterconsultaPedido[]>(url);
       pedidos.value = response.data;
     } catch (err: unknown) {
       error.value = 'Falha ao carregar pedidos de interconsulta.';
@@ -102,6 +103,20 @@ export const useInterconsultaStore = defineStore('interconsulta', () => {
       sintomas.value = response.data;
     } catch (err: unknown) {
       console.error('Falha ao carregar sintomas.', err);
+    }
+  }
+
+  async function listarSintomasPorEspecialidade(especialidadeId: number): Promise<void> {
+    try {
+      const response = await api.get<SintomaCatalogoItem[]>(`/api/interconsultas/especialidades/${especialidadeId}/sintomas`);
+      if (response.data && response.data.length > 0) {
+        sintomas.value = response.data;
+      } else {
+        await listarSintomas();
+      }
+    } catch (err: unknown) {
+      console.error('Falha ao carregar sintomas da especialidade.', err);
+      await listarSintomas();
     }
   }
 
@@ -180,6 +195,7 @@ export const useInterconsultaStore = defineStore('interconsulta', () => {
     error,
     listarPedidos,
     listarSintomas,
+    listarSintomasPorEspecialidade,
     listarEspecialidades,
     criarPedido,
     mascararCns,

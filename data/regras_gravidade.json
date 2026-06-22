@@ -16,6 +16,38 @@
     "deleted_at": null
   },
   {
+    "sintoma_id": 2,
+    "especialidade_id": 1,
+    "pontuacao": 10,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "sintoma_id": 5,
+    "especialidade_id": 2,
+    "pontuacao": 5,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "sintoma_id": 12,
+    "especialidade_id": 2,
+    "pontuacao": 5,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "sintoma_id": 14,
+    "especialidade_id": 2,
+    "pontuacao": 1,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
     "sintoma_id": 13,
     "especialidade_id": 3,
     "pontuacao": 5,
@@ -25,6 +57,22 @@
   },
   {
     "sintoma_id": 9,
+    "especialidade_id": 3,
+    "pontuacao": 1,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "sintoma_id": 9,
+    "especialidade_id": 4,
+    "pontuacao": 5,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "sintoma_id": 5,
     "especialidade_id": 4,
     "pontuacao": 5,
     "criado_em": null,
@@ -40,8 +88,40 @@
     "deleted_at": null
   },
   {
+    "sintoma_id": 10,
+    "especialidade_id": 5,
+    "pontuacao": 5,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
     "sintoma_id": 14,
     "especialidade_id": 6,
+    "pontuacao": 5,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "sintoma_id": 7,
+    "especialidade_id": 6,
+    "pontuacao": 5,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "sintoma_id": 8,
+    "especialidade_id": 7,
+    "pontuacao": 5,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "sintoma_id": 5,
+    "especialidade_id": 7,
     "pontuacao": 5,
     "criado_em": null,
     "atualizado_em": null,
@@ -64,9 +144,217 @@
     "deleted_at": null
   },
   {
+    "sintoma_id": 1,
+    "especialidade_id": 9,
+    "pontuacao": 10,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "sintoma_id": 4,
+    "especialidade_id": 9,
+    "pontuacao": 5,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "sintoma_id": 5,
+    "especialidade_id": 9,
+    "pontuacao": 5,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "sintoma_id": 6,
+    "especialidade_id": 9,
+    "pontuacao": 5,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "sintoma_id": 4,
+    "especialidade_id": 10,
+    "pontuacao": 5,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "sintoma_id": 14,
+    "especialidade_id": 10,
+    "pontuacao": 1,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
     "sintoma_id": 8,
     "especialidade_id": 11,
     "pontuacao": 10,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "sintoma_id": 15,
+    "especialidade_id": 11,
+    "pontuacao": 10,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "sintoma_id": 16,
+    "especialidade_id": 11,
+    "pontuacao": 10,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "sintoma_id": 17,
+    "especialidade_id": 11,
+    "pontuacao": 10,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "sintoma_id": 18,
+    "especialidade_id": 11,
+    "pontuacao": 10,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "sintoma_id": 19,
+    "especialidade_id": 11,
+    "pontuacao": 10,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "sintoma_id": 20,
+    "especialidade_id": 11,
+    "pontuacao": 10,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "sintoma_id": 21,
+    "especialidade_id": 11,
+    "pontuacao": 5,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "sintoma_id": 22,
+    "especialidade_id": 11,
+    "pontuacao": 5,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "sintoma_id": 23,
+    "especialidade_id": 11,
+    "pontuacao": 5,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "sintoma_id": 24,
+    "especialidade_id": 11,
+    "pontuacao": 5,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "sintoma_id": 25,
+    "especialidade_id": 11,
+    "pontuacao": 5,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "sintoma_id": 26,
+    "especialidade_id": 11,
+    "pontuacao": 5,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "sintoma_id": 27,
+    "especialidade_id": 11,
+    "pontuacao": 5,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "sintoma_id": 28,
+    "especialidade_id": 11,
+    "pontuacao": 5,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "sintoma_id": 29,
+    "especialidade_id": 11,
+    "pontuacao": 5,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "sintoma_id": 30,
+    "especialidade_id": 11,
+    "pontuacao": 5,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "sintoma_id": 31,
+    "especialidade_id": 11,
+    "pontuacao": 2,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "sintoma_id": 32,
+    "especialidade_id": 11,
+    "pontuacao": 2,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "sintoma_id": 33,
+    "especialidade_id": 11,
+    "pontuacao": 2,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "sintoma_id": 34,
+    "especialidade_id": 11,
+    "pontuacao": 2,
     "criado_em": null,
     "atualizado_em": null,
     "deleted_at": null
@@ -139,6 +427,22 @@
     "sintoma_id": 8,
     "especialidade_id": 18,
     "pontuacao": 10,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "sintoma_id": 11,
+    "especialidade_id": 19,
+    "pontuacao": 5,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "sintoma_id": 5,
+    "especialidade_id": 19,
+    "pontuacao": 5,
     "criado_em": null,
     "atualizado_em": null,
     "deleted_at": null

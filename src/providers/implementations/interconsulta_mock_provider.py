@@ -1,7 +1,7 @@
 import os
 import json
 from datetime import datetime, timezone
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 from ..interfaces.interconsulta_provider_interface import InterconsultaProviderInterface
 from src.helpers.crypto_helper import encrypt_data, decrypt_data
@@ -116,15 +116,19 @@ class InterconsultaMockProvider(InterconsultaProviderInterface):
             "atualizado_em": self._parse_datetime(new_record["atualizado_em"])
         }
 
-    async def listar_pedidos_ativos(self) -> List[Dict[str, Any]]:
+    async def listar_pedidos_ativos(self, especialidade_id: Optional[int] = None) -> List[Dict[str, Any]]:
         """
         Lists all active requests (not soft-deleted), ordered by clinical gravity and creation date.
+        Opcionalmente filtrado por especialidade_id.
         """
         data = self._load_data()
         
         active_records = []
         for r in data:
             if r.get("deleted_at") is not None:
+                continue
+                
+            if especialidade_id is not None and int(r.get("especialidade_id", 0)) != especialidade_id:
                 continue
                 
             cns_decrypted = self._decrypt_cns(r.get("paciente_cns", ""))

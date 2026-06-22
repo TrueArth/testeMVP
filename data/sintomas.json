@@ -110,5 +110,165 @@
     "criado_em": null,
     "atualizado_em": null,
     "deleted_at": null
+  },
+  {
+    "id": 15,
+    "nome": "Doença Renal Crônica estágio V",
+    "pontuacao": 10,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "id": 16,
+    "nome": "Síndrome Nefrótica grave (proteinúria > 8g/24h e/ou disfunção renal aguda)",
+    "pontuacao": 10,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "id": 17,
+    "nome": "Síndrome Nefrítica ou Glomerulonefrite rapidamente progressiva",
+    "pontuacao": 10,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "id": 18,
+    "nome": "Hipertensão arterial acelerada ou maligna",
+    "pontuacao": 10,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "id": 19,
+    "nome": "Injúria renal aguda",
+    "pontuacao": 10,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "id": 20,
+    "nome": "Alterações em sumário de urina com Injúria renal aguda",
+    "pontuacao": 10,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "id": 21,
+    "nome": "Doença Renal Crônica estágio IIIa a IV",
+    "pontuacao": 5,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "id": 22,
+    "nome": "Sinais/sintomas e alterações laboratoriais de DMO-DRC",
+    "pontuacao": 5,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "id": 23,
+    "nome": "DRC/dialítico com osteoporose e/ou fraturas",
+    "pontuacao": 5,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "id": 24,
+    "nome": "DRC/dialítico com hiperparatireoidismo secundário grave",
+    "pontuacao": 5,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "id": 25,
+    "nome": "Transplantado renal com osteoporose ou hiperparatireoidismo persistente",
+    "pontuacao": 5,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "id": 26,
+    "nome": "DRC de etiologia indeterminada com suspeita de causa genética/rara",
+    "pontuacao": 5,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "id": 27,
+    "nome": "Investigação de síndrome nefrótica ou nefrítica familiar",
+    "pontuacao": 5,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "id": 28,
+    "nome": "Distúrbio hidroeletrolítico de difícil diagnóstico e manejo",
+    "pontuacao": 5,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "id": 29,
+    "nome": "Investigação de nefrocalcinose sem causa definida",
+    "pontuacao": 5,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "id": 30,
+    "nome": "Síndrome Nefrótica leve a moderada (proteinúria < 8g/24h)",
+    "pontuacao": 5,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "id": 31,
+    "nome": "Hematúria isolada",
+    "pontuacao": 2,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "id": 32,
+    "nome": "Proteinúria subnefrótica isolada",
+    "pontuacao": 2,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "id": 33,
+    "nome": "Doença Renal Crônica estágio I ou II",
+    "pontuacao": 2,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
+  },
+  {
+    "id": 34,
+    "nome": "Infecções urinárias complicadas (repetição e/ou rim único)",
+    "pontuacao": 2,
+    "criado_em": null,
+    "atualizado_em": null,
+    "deleted_at": null
   }
 ]

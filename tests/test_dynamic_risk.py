@@ -199,15 +199,15 @@ async def test_api_blocks_past_consultation_date(client: AsyncClient):
     assert res.status_code == 201
     pedido_id = res.json()["id"]
 
-    # Tenta agendar para 2 horas atrás -> deve retornar 400 Bad Request
+    # Tenta agendar para ontem -> deve retornar 400 Bad Request
     _mock_user_role = "regulador"
-    past_date = (datetime.now(timezone.utc) - timedelta(hours=2)).isoformat()
+    past_date = (datetime.now(timezone.utc) - timedelta(days=1)).isoformat()
     update_res = await client.patch(
         f"/api/interconsultas/{pedido_id}/status",
         json={"status": "AGENDADO", "data_consulta": past_date}
     )
     assert update_res.status_code == 400
-    assert "Não é possível agendar uma consulta para uma data/horário no passado." in update_res.json()["detail"]
+    assert "Não é possível agendar uma consulta para uma data no passado." in update_res.json()["detail"]
 
 @pytest.mark.asyncio
 async def test_api_blocks_non_numeric_cns(client: AsyncClient):

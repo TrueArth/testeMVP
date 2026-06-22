@@ -101,6 +101,14 @@ class CatalogoPostgresProvider(CatalogoProviderInterface):
         rows = result.mappings().all()
         return [dict(r) for r in rows]
 
+    async def listar_sintomas_por_especialidade(self, especialidade_id: int) -> List[Dict[str, Any]]:
+        params = {"especialidade_id": especialidade_id}
+        sql_template = read_sql_file(_get_sql_path("sintoma", "listar_sintomas_por_especialidade.sql"))
+        query_str = create_query(sql_template, params)
+        result = await self.session.execute(text(query_str))
+        rows = result.mappings().all()
+        return [dict(r) for r in rows]
+
     async def inativar_sintoma(self, sintoma_id: int) -> bool:
         params = {"id": sintoma_id}
         if self._dialect == "sqlite":

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 class InterconsultaProviderInterface(ABC):
     
@@ -12,10 +12,10 @@ class InterconsultaProviderInterface(ABC):
         pass
         
     @abstractmethod
-    async def listar_pedidos_ativos(self) -> List[Dict[str, Any]]:
+    async def listar_pedidos_ativos(self, especialidade_id: Optional[int] = None) -> List[Dict[str, Any]]:
         """
         Retorna todos os pedidos que não sofreram Soft Delete,
-        ordenados por gravidade.
+        ordenados por gravidade. Opcionalmente filtrado por especialidade_id.
         """
         pass
         

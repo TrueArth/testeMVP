@@ -2,7 +2,7 @@ import os
 import json
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 from ..interfaces.interconsulta_provider_interface import InterconsultaProviderInterface
 from src.helpers.crypto_helper import encrypt_data, decrypt_data
@@ -97,9 +97,10 @@ class InterconsultaPostgresProvider(InterconsultaProviderInterface):
         return row_dict
 
 
-    async def listar_pedidos_ativos(self) -> List[Dict[str, Any]]:
+    async def listar_pedidos_ativos(self, especialidade_id: Optional[int] = None) -> List[Dict[str, Any]]:
         """
         Retorna todos os pedidos sem Soft Delete aplicado, ordenados por gravidade.
+        Opcionalmente filtrado por especialidade_id.
         """
         sql_template = read_sql_file(_get_sql_path("listar_pedidos.sql"))
         result = await self.session.execute(text(sql_template))
@@ -108,6 +109,8 @@ class InterconsultaPostgresProvider(InterconsultaProviderInterface):
         pedidos = []
         for r in rows:
             p_dict = dict(r)
+            if especialidade_id is not None and p_dict.get("especialidade_id") != especialidade_id:
+                continue
             if p_dict.get("paciente_cns"):
                 try:
                     p_dict["paciente_cns"] = decrypt_data(p_dict["paciente_cns"])

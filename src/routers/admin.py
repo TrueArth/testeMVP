@@ -14,6 +14,7 @@ class SpecialtyCreate(BaseModel):
 class SymptomCreate(BaseModel):
     nome: str
     pontuacao: int
+    especialidade_id: int
 
 class RuleCreate(BaseModel):
     sintoma_id: int
@@ -251,8 +252,8 @@ async def create_sintoma(
     provider = Depends(get_catalogo_provider()),
     current_user = Depends(verify_admin_group)
 ):
-    """Cadastra um novo sintoma."""
-    return await CatalogoController.criar_sintoma(payload.nome, payload.pontuacao, provider)
+    """Cadastra um novo sintoma e o associa a uma especialidade."""
+    return await CatalogoController.criar_sintoma(payload.nome, payload.pontuacao, payload.especialidade_id, provider)
 
 @router.delete("/admin/sintomas/{sintoma_id}")
 async def delete_sintoma(

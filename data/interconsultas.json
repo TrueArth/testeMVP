@@ -121,11 +121,12 @@
       }
     ],
     "gravidade": "VERMELHO",
-    "status": "PENDENTE",
-    "marcado_por": null,
+    "status": "AGENDADO",
+    "marcado_por": "admin",
     "criado_em": "2026-06-20T15:48:57.212877+00:00",
-    "atualizado_em": "2026-06-20T15:48:57.212877+00:00",
-    "deleted_at": null
+    "atualizado_em": "2026-06-21T03:23:08.823401+00:00",
+    "deleted_at": null,
+    "data_consulta": "2026-07-12T03:00:00+00:00"
   },
   {
     "id": 8,
@@ -157,11 +158,12 @@
       }
     ],
     "gravidade": "VERMELHO",
-    "status": "PENDENTE",
-    "marcado_por": null,
+    "status": "AGENDADO",
+    "marcado_por": "regulador",
     "criado_em": "2026-06-20T15:52:03.181487+00:00",
-    "atualizado_em": "2026-06-20T15:52:03.181487+00:00",
-    "deleted_at": null
+    "atualizado_em": "2026-06-22T16:54:41.403323+00:00",
+    "deleted_at": null,
+    "data_consulta": "2026-07-12T21:30:00+00:00"
   },
   {
     "id": 10,
@@ -213,6 +215,48 @@
     "marcado_por": null,
     "criado_em": "2026-06-20T16:17:07.368546+00:00",
     "atualizado_em": "2026-06-20T16:17:07.368546+00:00",
+    "deleted_at": null
+  },
+  {
+    "id": 12,
+    "paciente_cns": "gAAAAABqOWhnw428_4CO_FCns9H_lybd6Io_nzpzrt_Wi_Uoz8lOomZ0-MAf1nyVCtkh8l1Dd0MjSyeDH7TcPDEZsunN_kmtWQ==",
+    "medico_solicitante_crm": "Dr. Carlos Silva",
+    "especialidade_id": 11,
+    "sintomas_json": [
+      {
+        "id": 5,
+        "nome": "Febre alta"
+      },
+      {
+        "id": 4,
+        "nome": "Dor torácica intensa"
+      }
+    ],
+    "gravidade": "VERMELHO",
+    "status": "PENDENTE",
+    "marcado_por": null,
+    "data_consulta": null,
+    "criado_em": "2026-06-22T16:52:55.812841+00:00",
+    "atualizado_em": "2026-06-22T16:52:55.812841+00:00",
+    "deleted_at": null
+  },
+  {
+    "id": 13,
+    "paciente_cns": "gAAAAABqOWh5_hHvzsEPMWkO_FEIowf2WuE22MKHjnVlbsDLEdmPNkpoFCwwg1ym1bNckA_v85zk3fddlQe9y_gyl3rZ8N8gmw==",
+    "medico_solicitante_crm": "Dr. Carlos Silva",
+    "especialidade_id": 1,
+    "sintomas_json": [
+      {
+        "id": 15,
+        "nome": "Tosse Grave"
+      }
+    ],
+    "gravidade": "AMARELO",
+    "status": "PENDENTE",
+    "marcado_por": null,
+    "data_consulta": null,
+    "criado_em": "2026-06-22T16:53:13.111932+00:00",
+    "atualizado_em": "2026-06-22T16:53:13.111932+00:00",
     "deleted_at": null
   }
 ]

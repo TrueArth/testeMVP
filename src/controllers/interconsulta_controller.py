@@ -1,5 +1,5 @@
 from fastapi import HTTPException, BackgroundTasks
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from cryptography.fernet import InvalidToken
 from src.services.queue_optimizer_service import QueueOptimizerService
 
@@ -94,12 +94,12 @@ class InterconsultaController:
         return pedido_criado
 
     @staticmethod
-    async def listar_pedidos(provider: InterconsultaProviderInterface, current_user: dict) -> List[Dict[str, Any]]:
+    async def listar_pedidos(provider: InterconsultaProviderInterface, current_user: dict, especialidade_id: Optional[int] = None) -> List[Dict[str, Any]]:
         """
         Retorna as interconsultas ativas.
         """
         try:
-            pedidos_estaticos = await provider.listar_pedidos_ativos()
+            pedidos_estaticos = await provider.listar_pedidos_ativos(especialidade_id)
             fila_inteligente = QueueOptimizerService.reordenar_fila_dinamica(pedidos_estaticos)
             
             # Resolve os nomes de cada paciente
@@ -169,11 +169,15 @@ class InterconsultaController:
                 if val_date.tzinfo is None:
                     val_date = val_date.replace(tzinfo=timezone.utc)
                 hoje = datetime.now(timezone.utc)
-                # Permite uma margem de tolerância de 1 minuto para evitar falsos positivos
-                if val_date < hoje - timedelta(minutes=1):
+                
+                # Compara apenas a parte da data, permitindo agendar para o dia de hoje sem problemas de fuso/hora
+                val_date_local = val_date.date()
+                hoje_local = hoje.astimezone(val_date.tzinfo).date() if val_date.tzinfo else hoje.date()
+                
+                if val_date_local < hoje_local:
                     raise HTTPException(
                         status_code=400,
-                        detail="Não é possível agendar uma consulta para uma data/horário no passado."
+                        detail="Não é possível agendar uma consulta para uma data no passado."
                     )
 
         try:

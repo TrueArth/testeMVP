@@ -90,62 +90,140 @@ async def lifespan(app: FastAPI):
             for esp in mock_esps:
                 await conn.execute(stmt_esp, esp)
 
-        # Seed symptoms if table is empty
-        res_sints = await conn.execute(text("SELECT COUNT(*) FROM sintomas WHERE deleted_at IS NULL"))
-        sints_count = res_sints.scalar()
-        if sints_count == 0:
-            mock_sints = [
-                {"id": 1, "nome": "Cegueira / Perda súbita de visão", "pontuacao": 10},
-                {"id": 2, "nome": "Infarto / Dor torácica súbita", "pontuacao": 10},
-                {"id": 3, "nome": "AVC / Perda de força unilateral", "pontuacao": 10},
-                {"id": 4, "nome": "Dor torácica intensa", "pontuacao": 5},
-                {"id": 5, "nome": "Febre alta", "pontuacao": 5},
-                {"id": 6, "nome": "Fratura", "pontuacao": 5},
-                {"id": 7, "nome": "Ideação suicida ativa", "pontuacao": 5},
-                {"id": 8, "nome": "Hematúria macroscópica", "pontuacao": 5},
-                {"id": 9, "nome": "Nódulo tireoidiano palpável", "pontuacao": 1},
-                {"id": 10, "nome": "Dispneia aguda", "pontuacao": 5},
-                {"id": 11, "nome": "Dor abdominal intensa", "pontuacao": 5},
-                {"id": 12, "nome": "Convulsão", "pontuacao": 5},
-                {"id": 13, "nome": "Erupção cutânea com febre", "pontuacao": 1},
-                {"id": 14, "nome": "Confusão mental aguda", "pontuacao": 1},
-            ]
-            stmt_sint = text(
-                "INSERT INTO sintomas (id, nome, pontuacao, criado_em, atualizado_em) "
-                "VALUES (:id, :nome, :pontuacao, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"
-            )
-            for sint in mock_sints:
+        # Seed symptoms if table is empty or missing new ones
+        mock_sints = [
+            {"id": 1, "nome": "Cegueira / Perda súbita de visão", "pontuacao": 10},
+            {"id": 2, "nome": "Infarto / Dor torácica súbita", "pontuacao": 10},
+            {"id": 3, "nome": "AVC / Perda de força unilateral", "pontuacao": 10},
+            {"id": 4, "nome": "Dor torácica intensa", "pontuacao": 5},
+            {"id": 5, "nome": "Febre alta", "pontuacao": 5},
+            {"id": 6, "nome": "Fratura", "pontuacao": 5},
+            {"id": 7, "nome": "Ideação suicida ativa", "pontuacao": 5},
+            {"id": 8, "nome": "Hematúria macroscópica", "pontuacao": 5},
+            {"id": 9, "nome": "Nódulo tireoidiano palpável", "pontuacao": 1},
+            {"id": 10, "nome": "Dispneia aguda", "pontuacao": 5},
+            {"id": 11, "nome": "Dor abdominal intensa", "pontuacao": 5},
+            {"id": 12, "nome": "Convulsão", "pontuacao": 5},
+            {"id": 13, "nome": "Erupção cutânea com febre", "pontuacao": 1},
+            {"id": 14, "nome": "Confusão mental aguda", "pontuacao": 1},
+            {"id": 15, "nome": "Doença Renal Crônica estágio V", "pontuacao": 10},
+            {"id": 16, "nome": "Síndrome Nefrótica grave (proteinúria > 8g/24h e/ou disfunção renal aguda)", "pontuacao": 10},
+            {"id": 17, "nome": "Síndrome Nefrítica ou Glomerulonefrite rapidamente progressiva", "pontuacao": 10},
+            {"id": 18, "nome": "Hipertensão arterial acelerada ou maligna", "pontuacao": 10},
+            {"id": 19, "nome": "Injúria renal aguda", "pontuacao": 10},
+            {"id": 20, "nome": "Alterações em sumário de urina com Injúria renal aguda", "pontuacao": 10},
+            {"id": 21, "nome": "Doença Renal Crônica estágio IIIa a IV", "pontuacao": 5},
+            {"id": 22, "nome": "Sinais/sintomas e alterações laboratoriais de DMO-DRC", "pontuacao": 5},
+            {"id": 23, "nome": "DRC/dialítico com osteoporose e/ou fraturas", "pontuacao": 5},
+            {"id": 24, "nome": "DRC/dialítico com hiperparatireoidismo secundário grave", "pontuacao": 5},
+            {"id": 25, "nome": "Transplantado renal com osteoporose ou hiperparatireoidismo persistente", "pontuacao": 5},
+            {"id": 26, "nome": "DRC de etiologia indeterminada com suspeita de causa genética/rara", "pontuacao": 5},
+            {"id": 27, "nome": "Investigação de síndrome nefrótica ou nefrítica familiar", "pontuacao": 5},
+            {"id": 28, "nome": "Distúrbio hidroeletrolítico de difícil diagnóstico e manejo", "pontuacao": 5},
+            {"id": 29, "nome": "Investigação de nefrocalcinose sem causa definida", "pontuacao": 5},
+            {"id": 30, "nome": "Síndrome Nefrótica leve a moderada (proteinúria < 8g/24h)", "pontuacao": 5},
+            {"id": 31, "nome": "Hematúria isolada", "pontuacao": 2},
+            {"id": 32, "nome": "Proteinúria subnefrótica isolada", "pontuacao": 2},
+            {"id": 33, "nome": "Doença Renal Crônica estágio I ou II", "pontuacao": 2},
+            {"id": 34, "nome": "Infecções urinárias complicadas (repetição e/ou rim único)", "pontuacao": 2},
+        ]
+        stmt_sint = text(
+            "INSERT INTO sintomas (id, nome, pontuacao, criado_em, atualizado_em) "
+            "VALUES (:id, :nome, :pontuacao, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"
+        )
+        for sint in mock_sints:
+            res_exist = await conn.execute(text("SELECT 1 FROM sintomas WHERE id = :id"), {"id": sint["id"]})
+            if not res_exist.scalar():
                 await conn.execute(stmt_sint, sint)
 
-        # Seed rules (overrides) if table is empty
-        res_rules = await conn.execute(text("SELECT COUNT(*) FROM regras_gravidade WHERE deleted_at IS NULL"))
-        rules_count = res_rules.scalar()
-        if rules_count == 0:
-            mock_rules = [
-                {"sintoma_id": 4, "especialidade_id": 1, "pontuacao": 10},
-                {"sintoma_id": 10, "especialidade_id": 1, "pontuacao": 10},
-                {"sintoma_id": 13, "especialidade_id": 3, "pontuacao": 5},
-                {"sintoma_id": 9, "especialidade_id": 4, "pontuacao": 5},
-                {"sintoma_id": 11, "especialidade_id": 5, "pontuacao": 10},
-                {"sintoma_id": 14, "especialidade_id": 6, "pontuacao": 5},
-                {"sintoma_id": 5, "especialidade_id": 8, "pontuacao": 5},
-                {"sintoma_id": 13, "especialidade_id": 8, "pontuacao": 5},
-                {"sintoma_id": 8, "especialidade_id": 11, "pontuacao": 10},
-                {"sintoma_id": 12, "especialidade_id": 12, "pontuacao": 10},
-                {"sintoma_id": 14, "especialidade_id": 12, "pontuacao": 5},
-                {"sintoma_id": 9, "especialidade_id": 13, "pontuacao": 5},
-                {"sintoma_id": 5, "especialidade_id": 14, "pontuacao": 5},
-                {"sintoma_id": 12, "especialidade_id": 14, "pontuacao": 10},
-                {"sintoma_id": 10, "especialidade_id": 15, "pontuacao": 10},
-                {"sintoma_id": 7, "especialidade_id": 16, "pontuacao": 10},
-                {"sintoma_id": 6, "especialidade_id": 17, "pontuacao": 5},
-                {"sintoma_id": 8, "especialidade_id": 18, "pontuacao": 10},
-            ]
-            stmt_rule = text(
-                "INSERT INTO regras_gravidade (sintoma_id, especialidade_id, pontuacao, criado_em, atualizado_em) "
-                "VALUES (:sintoma_id, :especialidade_id, :pontuacao, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"
+        # Seed rules (overrides) if table is empty or missing new ones
+        mock_rules = [
+            {"sintoma_id": 4, "especialidade_id": 1, "pontuacao": 10},
+            {"sintoma_id": 10, "especialidade_id": 1, "pontuacao": 10},
+            {"sintoma_id": 2, "especialidade_id": 1, "pontuacao": 10}, # Infarto -> Cardiologia
+            # Clínica Médica (ID 2)
+            {"sintoma_id": 5, "especialidade_id": 2, "pontuacao": 5},
+            {"sintoma_id": 12, "especialidade_id": 2, "pontuacao": 5},
+            {"sintoma_id": 14, "especialidade_id": 2, "pontuacao": 1},
+            # Dermatologia (ID 3)
+            {"sintoma_id": 13, "especialidade_id": 3, "pontuacao": 5},
+            {"sintoma_id": 9, "especialidade_id": 3, "pontuacao": 1},
+            # Endocrinologia (ID 4)
+            {"sintoma_id": 9, "especialidade_id": 4, "pontuacao": 5},
+            {"sintoma_id": 5, "especialidade_id": 4, "pontuacao": 5},
+            # Gastroenterologia (ID 5)
+            {"sintoma_id": 11, "especialidade_id": 5, "pontuacao": 10},
+            {"sintoma_id": 10, "especialidade_id": 5, "pontuacao": 5},
+            # Geriatria (ID 6)
+            {"sintoma_id": 14, "especialidade_id": 6, "pontuacao": 5},
+            {"sintoma_id": 7, "especialidade_id": 6, "pontuacao": 5},
+            # Hematologia (ID 7)
+            {"sintoma_id": 8, "especialidade_id": 7, "pontuacao": 5},
+            {"sintoma_id": 5, "especialidade_id": 7, "pontuacao": 5},
+            # Infectologia (ID 8)
+            {"sintoma_id": 5, "especialidade_id": 8, "pontuacao": 5},
+            {"sintoma_id": 13, "especialidade_id": 8, "pontuacao": 5},
+            # Medicina de Família e Comunidade (ID 9)
+            {"sintoma_id": 1, "especialidade_id": 9, "pontuacao": 10},
+            {"sintoma_id": 4, "especialidade_id": 9, "pontuacao": 5},
+            {"sintoma_id": 5, "especialidade_id": 9, "pontuacao": 5},
+            {"sintoma_id": 6, "especialidade_id": 9, "pontuacao": 5},
+            # Medicina do Trabalho (ID 10)
+            {"sintoma_id": 4, "especialidade_id": 10, "pontuacao": 5},
+            {"sintoma_id": 14, "especialidade_id": 10, "pontuacao": 1},
+            # Nefrologia (ID 11)
+            {"sintoma_id": 8, "especialidade_id": 11, "pontuacao": 10},
+            # Novas regras da Nefrologia (ID 11)
+            {"sintoma_id": 15, "especialidade_id": 11, "pontuacao": 10},
+            {"sintoma_id": 16, "especialidade_id": 11, "pontuacao": 10},
+            {"sintoma_id": 17, "especialidade_id": 11, "pontuacao": 10},
+            {"sintoma_id": 18, "especialidade_id": 11, "pontuacao": 10},
+            {"sintoma_id": 19, "especialidade_id": 11, "pontuacao": 10},
+            {"sintoma_id": 20, "especialidade_id": 11, "pontuacao": 10},
+            {"sintoma_id": 21, "especialidade_id": 11, "pontuacao": 5},
+            {"sintoma_id": 22, "especialidade_id": 11, "pontuacao": 5},
+            {"sintoma_id": 23, "especialidade_id": 11, "pontuacao": 5},
+            {"sintoma_id": 24, "especialidade_id": 11, "pontuacao": 5},
+            {"sintoma_id": 25, "especialidade_id": 11, "pontuacao": 5},
+            {"sintoma_id": 26, "especialidade_id": 11, "pontuacao": 5},
+            {"sintoma_id": 27, "especialidade_id": 11, "pontuacao": 5},
+            {"sintoma_id": 28, "especialidade_id": 11, "pontuacao": 5},
+            {"sintoma_id": 29, "especialidade_id": 11, "pontuacao": 5},
+            {"sintoma_id": 30, "especialidade_id": 11, "pontuacao": 5},
+            {"sintoma_id": 31, "especialidade_id": 11, "pontuacao": 2},
+            {"sintoma_id": 32, "especialidade_id": 11, "pontuacao": 2},
+            {"sintoma_id": 33, "especialidade_id": 11, "pontuacao": 2},
+            {"sintoma_id": 34, "especialidade_id": 11, "pontuacao": 2},
+            # Neurologia (ID 12)
+            {"sintoma_id": 12, "especialidade_id": 12, "pontuacao": 10},
+            {"sintoma_id": 14, "especialidade_id": 12, "pontuacao": 5},
+            # Oncologia (ID 13)
+            {"sintoma_id": 9, "especialidade_id": 13, "pontuacao": 5},
+            # Pediatria (ID 14)
+            {"sintoma_id": 5, "especialidade_id": 14, "pontuacao": 5},
+            {"sintoma_id": 12, "especialidade_id": 14, "pontuacao": 10},
+            # Pneumologia (ID 15)
+            {"sintoma_id": 10, "especialidade_id": 15, "pontuacao": 10},
+            # Psiquiatria (ID 16)
+            {"sintoma_id": 7, "especialidade_id": 16, "pontuacao": 10},
+            # Reumatologia (ID 17)
+            {"sintoma_id": 6, "especialidade_id": 17, "pontuacao": 5},
+            # Urologia (ID 18)
+            {"sintoma_id": 8, "especialidade_id": 18, "pontuacao": 10},
+            # Ginecologia e Obstetrícia (ID 19)
+            {"sintoma_id": 11, "especialidade_id": 19, "pontuacao": 5},
+            {"sintoma_id": 5, "especialidade_id": 19, "pontuacao": 5},
+        ]
+        stmt_rule = text(
+            "INSERT INTO regras_gravidade (sintoma_id, especialidade_id, pontuacao, criado_em, atualizado_em) "
+            "VALUES (:sintoma_id, :especialidade_id, :pontuacao, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"
+        )
+        for rule in mock_rules:
+            res_exist = await conn.execute(
+                text("SELECT 1 FROM regras_gravidade WHERE sintoma_id = :sintoma_id AND especialidade_id = :especialidade_id"),
+                {"sintoma_id": rule["sintoma_id"], "especialidade_id": rule["especialidade_id"]}
             )
-            for rule in mock_rules:
+            if not res_exist.scalar():
                 await conn.execute(stmt_rule, rule)
             
         # Seed users if users table is empty

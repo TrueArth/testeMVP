@@ -373,6 +373,19 @@
             placeholder="Ex: 5"
           />
         </div>
+
+        <div class="form-group">
+          <label class="form-label">Especialidade Vinculada</label>
+          <select 
+            v-model.number="novoSint.especialidade_id" 
+            class="form-control bg-white cursor-pointer" 
+            required
+          >
+            <option v-for="esp in especialidades" :key="esp.id" :value="esp.id">
+              {{ esp.nome }}
+            </option>
+          </select>
+        </div>
         <p v-if="erroFormCatalog" class="text-xs text-red-500 font-semibold">{{ erroFormCatalog }}</p>
       </form>
 
@@ -715,7 +728,7 @@ const mostrarModalCriarEsp = ref(false);
 const mostrarModalCriarSint = ref(false);
 
 const novaEsp = ref({ nome: '' });
-const novoSint = ref({ nome: '', pontuacao: 1 });
+const novoSint = ref({ nome: '', pontuacao: 1, especialidade_id: 1 });
 const novaRegra = ref({ sintoma_id: 1, especialidade_id: 1, pontuacao: 5 });
 const salvandoRegra = ref(false);
 
@@ -772,7 +785,11 @@ const confirmarInativarEsp = async (esp: any) => {
 };
 
 const abrirModalCriarSint = () => {
-  novoSint.value = { nome: '', pontuacao: 1 };
+  novoSint.value = { 
+    nome: '', 
+    pontuacao: 1, 
+    especialidade_id: especialidades.value.length > 0 ? especialidades.value[0].id : 1 
+  };
   erroFormCatalog.value = '';
   mostrarModalCriarSint.value = true;
 };

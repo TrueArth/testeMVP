@@ -51,6 +51,41 @@
       </Card>
     </div>
 
+    <!-- Abas de Especialidades (Seleção de Fila Própria) -->
+    <div class="bg-white rounded-xl p-4 border border-gray-100 shadow-sm space-y-3">
+      <div>
+        <h4 class="text-sm font-bold text-gray-800">Filas de Regulação por Especialidade</h4>
+        <p class="text-xs text-gray-400">Clique na especialidade para gerenciar sua fila de regulação individual</p>
+      </div>
+      
+      <div class="flex flex-wrap gap-2 pt-1">
+        <button
+          v-for="esp in especialidadesComPedidos"
+          :key="esp.id"
+          type="button"
+          class="px-4 py-2 text-xs font-bold rounded-lg transition duration-200 focus:outline-none flex items-center gap-2 border"
+          :class="[
+            especialidadeFiltro === esp.id 
+              ? 'bg-blue-600 border-blue-600 text-white shadow-sm' 
+              : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100 hover:text-gray-850'
+          ]"
+          @click="selecionarEspecialidadeFila(esp.id)"
+        >
+          {{ esp.nome }}
+          <span 
+            class="px-2 py-0.5 text-[10px] rounded-full font-extrabold transition-colors duration-200"
+            :class="[
+              especialidadeFiltro === esp.id 
+                ? 'bg-blue-700 text-white' 
+                : 'bg-gray-200 text-gray-700'
+            ]"
+          >
+            {{ contarPedidosPorEspecialidade(esp.id) }}
+          </span>
+        </button>
+      </div>
+    </div>
+
     <!-- Tabela da Fila -->
     <Card>
       <template #header>
@@ -237,7 +272,7 @@
             </div>
             <div v-if="pedidoSelecionado.data_consulta" class="pt-2 border-t border-gray-100">
               <p class="text-xs font-semibold text-gray-400 uppercase">Data da Consulta</p>
-              <p class="text-sm font-semibold text-green-700 mt-0.5">{{ formatarData(pedidoSelecionado.data_consulta) }}</p>
+              <p class="text-sm font-semibold text-green-700 mt-0.5">{{ formatarDataSemHora(pedidoSelecionado.data_consulta) }}</p>
             </div>
           </div>
 
@@ -324,16 +359,76 @@
       
       <div class="space-y-4 py-2">
         <p class="text-sm text-gray-500">
-          Informe a data e horário agendados para a consulta do paciente.
+          Selecione a data agendada para a consulta. Horários não são registrados, apenas o dia da consulta.
         </p>
-        <div class="form-group">
-          <label class="form-label">Data e Hora da Consulta</label>
-          <input 
-            type="datetime-local" 
-            v-model="dataConsulta" 
-            class="form-control" 
-            required 
-          />
+
+        <!-- Calendário Customizado -->
+        <div class="border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm">
+          <!-- Cabeçalho do Calendário -->
+          <div class="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-200">
+            <button 
+              type="button" 
+              class="p-1.5 hover:bg-gray-200 rounded-full transition text-gray-600 flex items-center justify-center focus:outline-none"
+              @click="navegarMes(-1)"
+            >
+              <ChevronLeftIcon class="h-4 w-4" />
+            </button>
+            <span class="text-xs font-bold text-gray-700 uppercase tracking-wide">
+              {{ nomesMeses[mesAtual] }} {{ anoAtual }}
+            </span>
+            <button 
+              type="button" 
+              class="p-1.5 hover:bg-gray-200 rounded-full transition text-gray-600 flex items-center justify-center focus:outline-none"
+              @click="navegarMes(1)"
+            >
+              <ChevronRightIcon class="h-4 w-4" />
+            </button>
+          </div>
+
+          <!-- Grade de Dias -->
+          <div class="p-3">
+            <div class="grid grid-cols-7 gap-1 text-center mb-2">
+              <span 
+                v-for="diaSem in diasDaSemana" 
+                :key="diaSem" 
+                class="text-xs font-bold text-gray-400 uppercase py-1"
+              >
+                {{ diaSem }}
+              </span>
+            </div>
+            
+            <div class="grid grid-cols-7 gap-1.5">
+              <button
+                v-for="(diaObj, idx) in diasNoCalendario"
+                :key="idx"
+                type="button"
+                :disabled="diaObj.desabilitado || !diaObj.dia"
+                class="w-full aspect-square flex items-center justify-center rounded-full text-xs font-semibold transition"
+                :class="[
+                  !diaObj.dia ? 'invisible pointer-events-none' : '',
+                  diaObj.desabilitado ? 'text-gray-300 cursor-not-allowed bg-transparent' : 'text-gray-700 hover:bg-blue-50 cursor-pointer',
+                  isHoje(diaObj.dataCompleta) && !isSelecionado(diaObj.dataCompleta) ? 'border border-blue-400 text-blue-600' : '',
+                  isSelecionado(diaObj.dataCompleta) ? 'bg-blue-600 text-white shadow-md hover:bg-blue-700 font-bold' : ''
+                ]"
+                @click="selecionarDataCalendario(diaObj)"
+              >
+                {{ diaObj.dia }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Data Selecionada por Extenso -->
+        <div class="bg-blue-50/50 border border-blue-100 rounded-lg p-3 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="text-blue-600">
+              <CheckCircleIcon class="h-5 w-5" />
+            </span>
+            <span class="text-xs font-semibold text-blue-800">Data de Marcação:</span>
+          </div>
+          <span class="text-xs font-bold text-blue-900 bg-white border border-blue-200 px-2.5 py-1 rounded shadow-sm">
+            {{ dataFormatadaPorExtenso }}
+          </span>
         </div>
       </div>
 
@@ -356,6 +451,8 @@ import {
   EyeIcon,
   CheckIcon,
   ClockIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
 } from '@heroicons/vue/24/outline';
 import Card from '../components/Card.vue';
 import Button from '../components/Button.vue';
@@ -378,6 +475,118 @@ const dataConsulta = ref('');
 const pedidoSendoAgendado = ref<InterconsultaPedido | null>(null);
 
 const activeTab = ref<'pendentes' | 'agendados'>('pendentes');
+
+const especialidadeFiltro = ref<number | null>(null);
+
+const especialidadesComPedidos = computed(() => {
+  const todas = { id: null as any, nome: 'Todas' };
+  const idsComPedidos = new Set(pedidos.value.map((p) => p.especialidade_id));
+  const filtradas = interconsultaStore.especialidades.filter((esp) => idsComPedidos.has(esp.id));
+  return [todas, ...filtradas];
+});
+
+function contarPedidosPorEspecialidade(especialidadeId: number | null): number {
+  if (especialidadeId === null) {
+    return pedidos.value.length;
+  }
+  return pedidos.value.filter((p) => p.especialidade_id === especialidadeId).length;
+}
+
+async function selecionarEspecialidadeFila(id: number | null) {
+  especialidadeFiltro.value = id;
+  await recarregar();
+}
+
+// Lógica do Calendário Customizado
+const hojeObj = new Date();
+const anoAtual = ref(hojeObj.getFullYear());
+const mesAtual = ref(hojeObj.getMonth());
+
+const nomesMeses = [
+  'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+  'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+];
+
+const diasDaSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+
+const diasNoCalendario = computed(() => {
+  const primeiroDiaDoMes = new Date(anoAtual.value, mesAtual.value, 1);
+  const diaDaSemanaInicial = primeiroDiaDoMes.getDay();
+  
+  const ultimoDiaDoMes = new Date(anoAtual.value, mesAtual.value + 1, 0);
+  const totalDiasNoMes = ultimoDiaDoMes.getDate();
+  
+  const dias = [];
+  
+  // Preenche os dias vazios do início do mês
+  for (let i = 0; i < diaDaSemanaInicial; i++) {
+    dias.push({ dia: null, dataCompleta: null, desabilitado: true });
+  }
+  
+  // Preenche os dias do mês atual
+  for (let d = 1; d <= totalDiasNoMes; d++) {
+    const dataCompleta = new Date(anoAtual.value, mesAtual.value, d);
+    
+    const dataComparacao = new Date(anoAtual.value, mesAtual.value, d);
+    const dataHojeSemHora = new Date();
+    dataHojeSemHora.setHours(0, 0, 0, 0);
+    
+    const desabilitado = dataComparacao < dataHojeSemHora;
+    
+    dias.push({
+      dia: d,
+      dataCompleta,
+      desabilitado
+    });
+  }
+  
+  return dias;
+});
+
+function navegarMes(direcao: number) {
+  mesAtual.value += direcao;
+  if (mesAtual.value < 0) {
+    mesAtual.value = 11;
+    anoAtual.value -= 1;
+  } else if (mesAtual.value > 11) {
+    mesAtual.value = 0;
+    anoAtual.value += 1;
+  }
+}
+
+function selecionarDataCalendario(diaObj: any) {
+  if (!diaObj.dia || diaObj.desabilitado || !diaObj.dataCompleta) return;
+  
+  const yyyy = diaObj.dataCompleta.getFullYear();
+  const mm = String(diaObj.dataCompleta.getMonth() + 1).padStart(2, '0');
+  const dd = String(diaObj.dataCompleta.getDate()).padStart(2, '0');
+  
+  dataConsulta.value = `${yyyy}-${mm}-${dd}`;
+}
+
+function isHoje(data?: Date | null): boolean {
+  if (!data) return false;
+  const hoje = new Date();
+  return data.getDate() === hoje.getDate() &&
+         data.getMonth() === hoje.getMonth() &&
+         data.getFullYear() === hoje.getFullYear();
+}
+
+function isSelecionado(data?: Date | null): boolean {
+  if (!data || !dataConsulta.value) return false;
+  const partes = dataConsulta.value.split('-');
+  if (partes.length !== 3) return false;
+  return data.getDate() === parseInt(partes[2]) &&
+         data.getMonth() === parseInt(partes[1]) - 1 &&
+         data.getFullYear() === parseInt(partes[0]);
+}
+
+const dataFormatadaPorExtenso = computed(() => {
+  if (!dataConsulta.value) return 'Nenhuma data selecionada';
+  const partes = dataConsulta.value.split('-');
+  const dateObj = new Date(parseInt(partes[0]), parseInt(partes[1]) - 1, parseInt(partes[2]));
+  return dateObj.toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+});
 
 const pedidos = computed(() => interconsultaStore.pedidos);
 
@@ -454,9 +663,28 @@ function formatarData(value?: string | null): string {
   return Number.isNaN(date.getTime()) ? value : date.toLocaleString('pt-BR');
 }
 
+function formatarDataSemHora(value?: string | null): string {
+  if (!value) {
+    return '—';
+  }
+  const partes = value.split('T')[0].split('-');
+  if (partes.length === 3) {
+    const [ano, mes, dia] = partes;
+    return `${dia}/${mes}/${ano}`;
+  }
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+  const dia = String(date.getDate()).padStart(2, '0');
+  const mes = String(date.getMonth() + 1).padStart(2, '0');
+  const ano = date.getFullYear();
+  return `${dia}/${mes}/${ano}`;
+}
+
 async function recarregar() {
   try {
-    await interconsultaStore.listarPedidos();
+    await interconsultaStore.listarPedidos(especialidadeFiltro.value);
   } catch {
     toast.error(interconsultaStore.error ?? 'Falha ao carregar a fila de regulação.');
   }
@@ -464,19 +692,29 @@ async function recarregar() {
 
 function confirmarAgendamento(pedido: InterconsultaPedido) {
   pedidoSendoAgendado.value = pedido;
-  dataConsulta.value = '';
+  
+  const hoje = new Date();
+  anoAtual.value = hoje.getFullYear();
+  mesAtual.value = hoje.getMonth();
+  
+  const yyyy = hoje.getFullYear();
+  const mm = String(hoje.getMonth() + 1).padStart(2, '0');
+  const dd = String(hoje.getDate()).padStart(2, '0');
+  dataConsulta.value = `${yyyy}-${mm}-${dd}`;
+  
   mostrarModalAgendamento.value = true;
 }
 
 async function salvarAgendamento() {
   if (!pedidoSendoAgendado.value) return;
   if (!dataConsulta.value) {
-    toast.error("Por favor, informe a data e hora da consulta.");
+    toast.error("Por favor, selecione a data da consulta.");
     return;
   }
   executingAction.value = true;
   try {
-    const formattedDate = new Date(dataConsulta.value).toISOString();
+    // Envia a data com hora zerada/meio-dia UTC de forma segura contra timezones
+    const formattedDate = `${dataConsulta.value}T12:00:00Z`;
     await interconsultaStore.atualizarStatusPedido(pedidoSendoAgendado.value.id, 'AGENDADO', formattedDate);
     toast.success(`Pedido #${pedidoSendoAgendado.value.id} marcado como agendado com sucesso.`);
     mostrarModalAgendamento.value = false;

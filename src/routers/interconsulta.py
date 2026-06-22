@@ -85,13 +85,14 @@ async def verify_regulator_user(current_user: dict = Depends(get_current_user)):
 
 @router.get("/", response_model=List[InterconsultaResponse])
 async def listar_interconsultas(
+    especialidade_id: Optional[int] = None,
     provider: InterconsultaProviderInterface = Depends(get_interconsulta_provider(strategy="POSTGRES")),
     current_user: dict = Depends(verify_regulator_user) # Exige regulador ou admin
 ):
     """
     Lista todos os pedidos ativos (Soft Delete out), ordenados por prioridade clínica.
     """
-    return await InterconsultaController.listar_pedidos(provider, current_user)
+    return await InterconsultaController.listar_pedidos(provider, current_user, especialidade_id)
 
 @router.delete("/{pedido_id}")
 async def inativar_interconsulta(
@@ -139,6 +140,18 @@ async def listar_sintomas(
     """
     from src.controllers.catalogo_controller import CatalogoController
     return await CatalogoController.listar_sintomas(provider)
+
+@router.get("/especialidades/{especialidade_id}/sintomas")
+async def listar_sintomas_por_especialidade(
+    especialidade_id: int,
+    provider = Depends(get_catalogo_provider()),
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Lista todos os sintomas ativos associados a uma especialidade específica.
+    """
+    from src.controllers.catalogo_controller import CatalogoController
+    return await CatalogoController.listar_sintomas_por_especialidade(especialidade_id, provider)
 
 @router.get("/especialidades")
 async def listar_especialidades(

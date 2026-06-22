@@ -29,6 +29,11 @@ class CatalogoProviderInterface(ABC):
         pass
         
     @abstractmethod
+    async def listar_sintomas_por_especialidade(self, especialidade_id: int) -> List[Dict[str, Any]]:
+        """Lista sintomas ativos associados a uma especialidade específica."""
+        pass
+        
+    @abstractmethod
     async def inativar_sintoma(self, sintoma_id: int) -> bool:
         """Inativa um sintoma (Soft Delete)."""
         pass
